@@ -9,6 +9,11 @@ class ContactFile {
 
     async ensureFileExists() {
         try {
+            // First, ensure the storage directory exists
+            const storageDir = path.dirname(this.filePath);
+            await fs.mkdir(storageDir, { recursive: true });
+
+            // Then check if the file exists
             await fs.access(this.filePath);
         } catch (error) {
             // File doesn't exist, create it
