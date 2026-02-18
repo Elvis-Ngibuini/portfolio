@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin - Contact Submissions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: #00d4ff;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .header-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .last-updated {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .bulk-actions {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: none;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        .bulk-info {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .controls select,
+        .controls input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #00d4ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #00a8cc;
+        }
+
+        .contacts-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-new {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-read {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-replied {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-archived {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .priority-high {
+            color: #dc2626;
+        }
+
+        .priority-medium {
+            color: #d97706;
+        }
+
+        .priority-low {
+            color: #059669;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .pagination button.active {
+            background: #00d4ff;
+            color: white;
+            border-color: #00d4ff;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .contact-detail {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-detail label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-detail .value {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            word-wrap: break-word;
+        }
+
+        .contact-detail .message-value {
+            min-height: 100px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .contact-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .meta-item {
+            font-size: 0.9rem;
+        }
+
+        .meta-item strong {
+            color: #666;
+        }
+
+        .modal-actions {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .status-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: auto;
+        }
+
+        .status-selector select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th,
+            td {
+                padding: 0.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .status-selector {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1><i class="fas fa-envelope"></i> Portfolio Admin - Contact Submissions</h1>
+        <div class="header-info">
+            <div class="last-updated">
+                <div class="status-indicator"></div>
+                <span>Last updated: <span id="lastUpdated">Loading...</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="total-count">-</div>
+                <div class="label">Total Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="unread-count">-</div>
+                <div class="label">Unread</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="today-count">-</div>
+                <div class="label">Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="week-count">-</div>
+                <div class="label">This Week</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <select id="status-filter">
+                <option value="">All Status</option>
+                <option value="new">New</option>
+                <option value="read">Read</option>
+                <option value="replied">Replied</option>
+                <option value="archived">Archived</option>
+            </select>
+
+            <select id="priority-filter">
+                <option value="">All Priority</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+
+            <input type="text" id="search-input" placeholder="Search name, email, subject...">
+
+            <button class="btn btn-primary" onclick="loadContacts()">
+                <i class="fas fa-search"></i> Search
+            </button>
+
+            <button class="btn btn-primary" onclick="refreshData()">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+
+            <button class="btn btn-primary" onclick="exportContacts()">
+                <i class="fas fa-download"></i> Export CSV
+            </button>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions" class="bulk-actions">
+            <div class="bulk-info">
+                <span id="selectedCount">0</span> contacts selected
+            </div>
+            <select id="bulkStatus">
+                <option value="">Change Status</option>
+                <option value="read">Mark as Read</option>
+                <option value="replied">Mark as Replied</option>
+                <option value="archived">Archive</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyBulkAction()">
+                <i class="fas fa-check"></i> Apply
+            </button>
+            <button class="btn" onclick="clearSelection()">
+                <i class="fas fa-times"></i> Clear Selection
+            </button>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <!-- Contacts Table -->
+        <div class="contacts-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="contacts-tbody">
+                    <tr>
+                        <td colspan="8" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading contacts...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- Contact Details Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Contact Details</h2>
+                <button class="modal-close" onclick="closeContactModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contact details will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <div class="status-selector">
+                    <label for="modalStatus">Status:</label>
+                    <select id="modalStatus">
+                        <option value="new">New</option>
+                        <option value="read">Read</option>
+                        <option value="replied">Replied</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="updateContactStatus()">Update</button>
+                </div>
+                <div class="status-selector">
+                    <label for="modalPriority">Priority:</label>
+                    <select id="modalPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="updateContactPriority()">Update</button>
+                </div>
+                <button class="btn btn-primary" onclick="replyToContact()">
+                    <i class="fas fa-reply"></i> Reply
+                </button>
+                <button class="btn" onclick="closeContactModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = 'http://localhost:3000/api';
+        const ADMIN_API_KEY = 'lyVRAsues3sICGgJjXDfcYy5dnRFq5eJ9o34i6yL/fQ='; // Production API Key
+
+        // Admin Password Protection
+        // IMPORTANT: This is your secure admin password - keep it safe!
+        // Password: eTd!#rhgMI2ztB@$
+        const ADMIN_PASSWORD = 'eTd!#rhgMI2ztB@$'; // Your secure admin password
+
+        let currentPage = 1;
+        let currentFilters = {};
+        let isAuthenticated = false;
+
+        // Check if user is authenticated
+        function checkAuthentication() {
+            const authToken = sessionStorage.getItem('admin_auth');
+            const authTime = sessionStorage.getItem('admin_auth_time');
+
+            // Check if authenticated and session is less than 8 hours old
+            if (authToken === 'authenticated' && authTime) {
+                const timeDiff = Date.now() - parseInt(authTime);
+                const eightHours = 8 * 60 * 60 * 1000;
+
+                if (timeDiff < eightHours) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            const modal = document.createElement('div');
+            modal.id = 'loginModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 8px;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                ">
+                    <h2 style="margin-bottom: 1rem; color: #333;">
+                        <i class="fas fa-lock"></i> Admin Access
+                    </h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">
+                        This area is restricted. Please enter the admin password.
+                    </p>
+                    <input 
+                        type="password" 
+                        id="adminPasswordInput" 
+                        placeholder="Enter admin password"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            font-size: 1rem;
+                            margin-bottom: 1rem;
+                        "
+                    />
+                    <div id="loginError" style="
+                        color: #dc2626;
+                        margin-bottom: 1rem;
+                        display: none;
+                        font-size: 0.9rem;
+                    ">
+                        <i class="fas fa-exclamation-circle"></i> Incorrect password. Please try again.
+                    </div>
+                    <button 
+                        onclick="verifyPassword()" 
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            background: #00d4ff;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            font-size: 1rem;
+                            cursor: pointer;
+                            transition: background 0.3s;
+                        "
+                        onmouseover="this.style.background='#00a8cc'"
+                        onmouseout="this.style.background='#00d4ff'"
+                    >
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <p style="
+                        margin-top: 1rem;
+                        font-size: 0.85rem;
+                        color: #999;
+                        text-align: center;
+                    ">
+                        <i class="fas fa-shield-alt"></i> Secure admin area
+                    </p>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            document.getElementById('adminPasswordInput').focus();
+
+            // Allow Enter key to submit
+            document.getElementById('adminPasswordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    verifyPassword();
+                }
+            });
+        }
+
+        // Verify password
+        function verifyPassword() {
+            const input = document.getElementById('adminPasswordInput').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (input === ADMIN_PASSWORD) {
+                // Set authentication
+                sessionStorage.setItem('admin_auth', 'authenticated');
+                sessionStorage.setItem('admin_auth_time', Date.now().toString());
+                isAuthenticated = true;
+
+                // Remove login modal
+                document.getElementById('loginModal').remove();
+
+                // Load admin content
+                loadStats();
+                loadContacts();
+                updateLastUpdated();
+
+                // Show success message
+                showNotification('✅ Login successful! Welcome to admin panel.', 'success');
+            } else {
+                // Show error
+                errorDiv.style.display = 'block';
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('adminPasswordInput').focus();
+
+                // Log failed attempt (for security monitoring)
+                console.warn('Failed admin login attempt at', new Date().toISOString());
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('admin_auth');
+                sessionStorage.removeItem('admin_auth_time');
+                isAuthenticated = false;
+                location.reload();
+            }
+        }
+
+        // Helper function for authenticated API requests
+        async function authenticatedFetch(url, options = {}) {
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
+
+            return fetch(url, {
+                ...options,
+                headers: {
+                    'X-API-Key': ADMIN_API_KEY,
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 10001;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            if (checkAuthentication()) {
+                isAuthenticated = true;
+                console.log('✅ Admin panel initialized with production API key');
+                loadStats();
+                loadContacts();
+                updateLastUpdated();
+            } else {
+                // Show login modal
+                showLoginModal();
+            }
+
+            // Add logout button to header
+            const header = document.querySelector('.header');
+            const logoutBtn = document.createElement('button');
+            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+            logoutBtn.style.cssText = `
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.3s;
+            `;
+            logoutBtn.onmouseover = () => logoutBtn.style.background = 'rgba(255, 255, 255, 0.3)';
+            logoutBtn.onmouseout = () => logoutBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+            logoutBtn.onclick = logout;
+            header.appendChild(logoutBtn);
+        });
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/stats/dashboard`);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showError('Authentication failed. Please check your API key.');
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.data;
+                    document.getElementById('total-count').textContent = stats.total_submissions;
+                    document.getElementById('unread-count').textContent = stats.unread_count;
+                    document.getElementById('today-count').textContent = stats.today_count;
+                    document.getElementById('week-count').textContent = stats.this_week;
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                showError('Failed to load statistics. Check console for details.');
+            }
+        }
+
+        // Load contacts
+        async function loadContacts(page = 1) {
+            try {
+                showLoading();
+
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 10,
+                    ...currentFilters
+                });
+
+                const response = await authenticatedFetch(`${API_BASE}/contact?${params}`);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showError('Authentication failed. Please check your API key.');
+                        hideLoading();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayContacts(result.data.contacts);
+                    displayPagination(result.data.pagination);
+                    currentPage = page;
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to load contacts: ' + error.message);
+            }
+        }
+
+        // Display contacts in table
+        function displayContacts(contacts) {
+            const tbody = document.getElementById('contacts-tbody');
+
+            if (contacts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="loading">No contacts found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = contacts.map(contact => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="contact-checkbox" value="${contact._id}" onchange="updateSelection()">
+                    </td>
+                    <td>${new Date(contact.created_at).toLocaleDateString()}</td>
+                    <td>${contact.name}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.subject}</td>
+                    <td><span class="status-badge status-${contact.status}">${contact.status}</span></td>
+                    <td><span class="priority-${contact.priority}">${contact.priority}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-sm btn-primary" onclick="viewContact('${contact._id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="updateStatus('${contact._id}', 'replied')">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Reset selection
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        // Display pagination
+        function displayPagination(pagination) {
+            const paginationDiv = document.getElementById('pagination');
+            const { current_page, total_pages } = pagination;
+
+            let html = '';
+
+            // Previous button
+            html += `<button ${current_page === 1 ? 'disabled' : ''} onclick="loadContacts(${current_page - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+
+            // Page numbers
+            for (let i = Math.max(1, current_page - 2); i <= Math.min(total_pages, current_page + 2); i++) {
+                html += `<button class="${i === current_page ? 'active' : ''}" onclick="loadContacts(${i})">${i}</button>`;
+            }
+
+            // Next button
+            html += `<button ${current_page === total_pages ? 'disabled' : ''} onclick="loadContacts(${current_page + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            paginationDiv.innerHTML = html;
+        }
+
+        // View contact details
+        async function viewContact(id) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/${id}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayContactModal(result.data);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to load contact details: ' + error.message);
+            }
+        }
+
+        // Display contact in modal
+        function displayContactModal(contact) {
+            const modalBody = document.getElementById('modalBody');
+            const modalStatus = document.getElementById('modalStatus');
+
+            modalBody.innerHTML = `
+                <div class="contact-detail">
+                    <label>Name</label>
+                    <div class="value">${contact.name}</div>
+                </div>
+                <div class="contact-detail">
+                    <label>Email</label>
+                    <div class="value">
+                        <a href="mailto:${contact.email}">${contact.email}</a>
+                    </div>
+                </div>
+                <div class="contact-detail">
+                    <label>Subject</label>
+                    <div class="value">${contact.subject}</div>
+                </div>
+                <div class="contact-detail">
+                    <label>Message</label>
+                    <div class="value message-value">${contact.message}</div>
+                </div>
+                <div class="contact-meta">
+                    <div class="meta-item">
+                        <strong>Submitted:</strong><br>
+                        ${new Date(contact.created_at).toLocaleString()}
+                    </div>
+                    <div class="meta-item">
+                        <strong>Priority:</strong><br>
+                        <span class="priority-${contact.priority}">${contact.priority}</span>
+                    </div>
+                    <div class="meta-item">
+                        <strong>IP Address:</strong><br>
+                        ${contact.ip_address || 'N/A'}
+                    </div>
+                    <div class="meta-item">
+                        <strong>Email Sent:</strong><br>
+                        ${contact.email_sent ? 'Yes' : 'No'}
+                    </div>
+                    ${contact.replied_at ? `
+                    <div class="meta-item">
+                        <strong>Replied:</strong><br>
+                        ${new Date(contact.replied_at).toLocaleString()}
+                    </div>
+                    ` : ''}
+                </div>
+                ${contact.notes ? `
+                <div class="contact-detail" style="margin-top: 1rem;">
+                    <label>Notes</label>
+                    <div class="value">${contact.notes}</div>
+                </div>
+                ` : ''}
+                <div class="contact-detail" style="margin-top: 1rem;">
+                    <label>Add/Edit Notes</label>
+                    <textarea id="contactNotes" class="value" style="min-height: 80px; width: 100%; border: 1px solid #ddd; padding: 0.75rem; border-radius: 4px; resize: vertical;" placeholder="Add internal notes about this contact...">${contact.notes || ''}</textarea>
+                    <button class="btn btn-primary btn-sm" onclick="saveContactNotes()" style="margin-top: 0.5rem;">
+                        <i class="fas fa-save"></i> Save Notes
+                    </button>
+                </div>
+            `;
+
+            modalStatus.value = contact.status;
+            modalStatus.dataset.contactId = contact._id;
+
+            const modalPriority = document.getElementById('modalPriority');
+            modalPriority.value = contact.priority;
+            modalPriority.dataset.contactId = contact._id;
+
+            document.getElementById('contactModal').classList.add('show');
+        }
+
+        // Close contact modal
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('show');
+        }
+
+        // Update contact status from modal
+        async function updateContactStatus() {
+            const modalStatus = document.getElementById('modalStatus');
+            const contactId = modalStatus.dataset.contactId;
+            const newStatus = modalStatus.value;
+
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/${contactId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadContacts(currentPage);
+                    loadStats();
+                    closeContactModal();
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to update status: ' + error.message);
+            }
+        }
+
+        // Reply to contact
+        function replyToContact() {
+            const modalStatus = document.getElementById('modalStatus');
+            const contactId = modalStatus.dataset.contactId;
+
+            // Get contact details from modal
+            const emailElement = document.querySelector('#modalBody a[href^="mailto:"]');
+            const subjectElement = document.querySelector('#modalBody .contact-detail:nth-child(3) .value');
+
+            if (emailElement && subjectElement) {
+                const email = emailElement.textContent;
+                const subject = 'Re: ' + subjectElement.textContent;
+
+                // Open email client
+                window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+
+                // Update status to replied
+                updateStatus(contactId, 'replied');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('contactModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeContactModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+
+        // Save contact notes
+        async function saveContactNotes() {
+            const modalStatus = document.getElementById('modalStatus');
+            const contactId = modalStatus.dataset.contactId;
+            const notes = document.getElementById('contactNotes').value;
+
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/${contactId}/notes`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ notes })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message briefly
+                    const saveBtn = document.querySelector('button[onclick="saveContactNotes()"]');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                    saveBtn.style.background = '#28a745';
+
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.style.background = '';
+                    }, 2000);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to save notes: ' + error.message);
+            }
+        }
+
+        // Update contact priority from modal
+        async function updateContactPriority() {
+            const modalPriority = document.getElementById('modalPriority');
+            const contactId = modalPriority.dataset.contactId;
+            const newPriority = modalPriority.value;
+
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/${contactId}/priority`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ priority: newPriority })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadContacts(currentPage);
+                    loadStats();
+
+                    // Show success feedback
+                    const updateBtn = document.querySelector('button[onclick="updateContactPriority()"]');
+                    const originalText = updateBtn.innerHTML;
+                    updateBtn.innerHTML = 'Updated!';
+                    updateBtn.style.background = '#28a745';
+
+                    setTimeout(() => {
+                        updateBtn.innerHTML = originalText;
+                        updateBtn.style.background = '';
+                    }, 1500);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to update priority: ' + error.message);
+            }
+        }
+
+        // Update contact status
+        async function updateStatus(id, status) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/contact/${id}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadContacts(currentPage);
+                    loadStats();
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to update status: ' + error.message);
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            currentFilters = {};
+
+            const status = document.getElementById('status-filter').value;
+            const priority = document.getElementById('priority-filter').value;
+            const search = document.getElementById('search-input').value;
+
+            if (status) currentFilters.status = status;
+            if (priority) currentFilters.priority = priority;
+            if (search) currentFilters.search = search;
+
+            loadContacts(1);
+        }
+
+        // Event listeners for filters
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('priority-filter').addEventListener('change', applyFilters);
+        document.getElementById('search-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') applyFilters();
+        });
+
+        // Refresh data
+        function refreshData() {
+            loadStats();
+            loadContacts(currentPage);
+            updateLastUpdated();
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Show loading state
+        function showLoading() {
+            document.getElementById('contacts-tbody').innerHTML =
+                '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+
+            // Check if it's a CORS or connection error
+            if (message.includes('Failed to fetch') || message.includes('CORS') || message.includes('ERR_FAILED')) {
+                errorDiv.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <strong>⚠️ Connection Error</strong><br>
+                        Cannot connect to the backend server. This usually means:
+                    </div>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>The backend server is not running</li>
+                        <li>You're accessing the admin panel incorrectly</li>
+                    </ul>
+                    <div style="margin-top: 1rem;">
+                        <strong>✅ Solution:</strong><br>
+                        1. Make sure both servers are running<br>
+                        2. Access the admin panel via: <a href="http://localhost:8000/admin.html" style="color: #00d4ff;">http://localhost:8000/admin.html</a><br>
+                        3. Or use the Portfolio Launcher: <a href="http://localhost:8000/launch-portfolio.html" style="color: #00d4ff;">launch-portfolio.html</a>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="window.location.href='http://localhost:8000/launch-portfolio.html'">
+                            <i class="fas fa-rocket"></i> Open Launcher
+                        </button>
+                        <button class="btn btn-primary" onclick="resetRateLimits()">
+                            <i class="fas fa-sync"></i> Retry Connection
+                        </button>
+                    </div>
+                `;
+            } else if (message.includes('Too many requests') || message.includes('429')) {
+                errorDiv.innerHTML = `
+                    <strong>Rate Limit Exceeded</strong><br>
+                    ${message}<br><br>
+                    <button class="btn btn-primary" onclick="resetRateLimits()">
+                        <i class="fas fa-sync"></i> Reset Rate Limits
+                    </button>
+                `;
+            } else {
+                errorDiv.textContent = message;
+            }
+
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                if (!message.includes('Failed to fetch') && !message.includes('CORS')) {
+                    errorDiv.style.display = 'none';
+                }
+            }, 10000); // Show longer for connection errors
+        }
+
+        // Reset rate limits function
+        async function resetRateLimits() {
+            try {
+                const response = await fetch('http://localhost:3000/reset-rate-limits', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('error-message').style.display = 'none';
+                    // Retry loading data
+                    setTimeout(() => {
+                        refreshData();
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Failed to reset rate limits:', error);
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        // Bulk Actions
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.contact-checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateSelection();
+        }
+
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.contact-checkbox');
+            const selectedCheckboxes = document.querySelectorAll('.contact-checkbox:checked');
+            const selectAll = document.getElementById('selectAll');
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+
+            // Update select all checkbox state
+            if (selectedCheckboxes.length === 0) {
+                selectAll.indeterminate = false;
+                selectAll.checked = false;
+            } else if (selectedCheckboxes.length === checkboxes.length) {
+                selectAll.indeterminate = false;
+                selectAll.checked = true;
+            } else {
+                selectAll.indeterminate = true;
+                selectAll.checked = false;
+            }
+
+            // Show/hide bulk actions
+            if (selectedCheckboxes.length > 0) {
+                bulkActions.classList.add('show');
+                selectedCount.textContent = selectedCheckboxes.length;
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        function clearSelection() {
+            const checkboxes = document.querySelectorAll('.contact-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        async function applyBulkAction() {
+            const selectedCheckboxes = document.querySelectorAll('.contact-checkbox:checked');
+            const bulkStatus = document.getElementById('bulkStatus').value;
+
+            if (!bulkStatus) {
+                showError('Please select an action to apply');
+                return;
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                showError('Please select contacts to update');
+                return;
+            }
+
+            const contactIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+            try {
+                // Update each contact
+                const promises = contactIds.map(id =>
+                    fetch(`${API_BASE}/contact/${id}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: bulkStatus })
+                    })
+                );
+
+                await Promise.all(promises);
+
+                // Refresh data
+                loadContacts(currentPage);
+                loadStats();
+                clearSelection();
+
+                // Reset bulk status selector
+                document.getElementById('bulkStatus').value = '';
+
+            } catch (error) {
+                showError('Failed to update contacts: ' + error.message);
+            }
+        }
+
+        // Export contacts to CSV
+        async function exportContacts() {
+            try {
+                // Get all contacts without pagination
+                const params = new URLSearchParams({
+                    limit: 1000, // Large number to get all contacts
+                    ...currentFilters
+                });
+
+                const response = await authenticatedFetch(`${API_BASE}/contact?${params}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const contacts = result.data.contacts;
+                    const csv = generateCSV(contacts);
+                    downloadCSV(csv, 'contacts-export.csv');
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to export contacts: ' + error.message);
+            }
+        }
+
+        function generateCSV(contacts) {
+            const headers = [
+                'ID', 'Name', 'Email', 'Subject', 'Message', 'Status', 'Priority',
+                'Created At', 'Updated At', 'IP Address', 'Email Sent', 'Auto Reply Sent', 'Replied At'
+            ];
+
+            const rows = contacts.map(contact => [
+                contact._id,
+                contact.name,
+                contact.email,
+                contact.subject,
+                contact.message.replace(/"/g, '""'), // Escape quotes
+                contact.status,
+                contact.priority,
+                contact.created_at,
+                contact.updated_at,
+                contact.ip_address || '',
+                contact.email_sent ? 'Yes' : 'No',
+                contact.auto_reply_sent ? 'Yes' : 'No',
+                contact.replied_at || ''
+            ]);
+
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+
+            return csvContent;
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    </script>
+</body>
+
+</html>

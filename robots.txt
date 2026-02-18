@@ -1,0 +1,40 @@
+# robots.txt for Eluis Ngibuini Portfolio
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /resume.html
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Block ALL admin, management, and test pages from search engines
+Disallow: /admin.html
+Disallow: /admin-redirect.html
+Disallow: /portfolio-dashboard.html
+Disallow: /portfolio-manager.html
+Disallow: /portfolio-analytics.html
+Disallow: /portfolio-backup.html
+Disallow: /portfolio-generator.html
+Disallow: /portfolio-config.js
+Disallow: /test-*.html
+Disallow: /reset-rate-limits.html
+Disallow: /update-*.html
+Disallow: /launch-portfolio.html
+Disallow: /image-optimizer.html
+Disallow: /START-HERE.html
+
+# Block server, configuration, and documentation files
+Disallow: /server/
+Disallow: /*.bat
+Disallow: /*.md
+Disallow: /*.txt
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /.vscode/
+
+# Sitemap location
+Sitemap: https://eluisngibuni.github.io/portfolio/sitemap.xml
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1

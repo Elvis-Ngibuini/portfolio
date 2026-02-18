@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .analytics-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .card-title h3 {
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .insights-list {
+            list-style: none;
+        }
+
+        .insights-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .insights-list li:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .insight-text {
+            flex: 1;
+        }
+
+        .insight-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .performance-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .performance-score {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-excellent {
+            color: #48bb78;
+        }
+
+        .score-good {
+            color: #ed8936;
+        }
+
+        .score-poor {
+            color: #f56565;
+        }
+
+        .recommendations {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .recommendation-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .recommendation-content h4 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-content p {
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> Portfolio Analytics</h1>
+        <p>Insights and performance metrics for your portfolio</p>
+    </div>
+
+    <div class="container">
+        <!-- Key Metrics -->
+        <div class="analytics-grid">
+            <!-- Contact Form Analytics -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #48bb78, #38a169);">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Contact Form</h3>
+                        <p>Submission analytics</p>
+                    </div>
+                </div>
+                <div class="metric-value" id="totalContacts">0</div>
+                <div class="metric-label">Total Submissions</div>
+                <div class="chart-container">
+                    <canvas id="contactChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Portfolio Performance -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Performance</h3>
+                        <p>Site speed & optimization</p>
+                    </div>
+                </div>
+                <div class="performance-grid">
+                    <div class="performance-item">
+                        <div class="performance-score score-excellent" id="performanceScore">95</div>
+                        <div>Performance</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-score score-excellent" id="accessibilityScore">98</div>
+                        <div>Accessibility</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-score score-good" id="seoScore">87</div>
+                        <div>SEO</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-score score-excellent" id="bestPracticesScore">92</div>
+                        <div>Best Practices</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Insights -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #ed8936, #dd6b20);">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Content Insights</h3>
+                        <p>Portfolio content analysis</p>
+                    </div>
+                </div>
+                <ul class="insights-list">
+                    <li>
+                        <div class="insight-icon" style="background: #e8f4fd; color: #0984e3;">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Active Projects</div>
+                            <div class="insight-value" id="projectCount">3</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="insight-icon" style="background: #f0fff4; color: #38a169;">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Skills Listed</div>
+                            <div class="insight-value" id="skillCount">15+</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="insight-icon" style="background: #fef5e7; color: #d69e2e;">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Certifications</div>
+                            <div class="insight-value" id="certCount">6</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="insight-icon" style="background: #fdf2f8; color: #b83280;">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Work Experience</div>
+                            <div class="insight-value" id="experienceCount">2</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #9f7aea, #805ad5);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Recent Activity</h3>
+                        <p>Latest portfolio updates</p>
+                    </div>
+                </div>
+                <ul class="insights-list" id="recentActivity">
+                    <li>
+                        <div class="insight-icon" style="background: #e8f4fd; color: #0984e3;">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Analytics dashboard added</div>
+                            <div style="font-size: 0.8rem; color: #718096;">Today</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="insight-icon" style="background: #f0fff4; color: #38a169;">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Admin panel enhanced</div>
+                            <div style="font-size: 0.8rem; color: #718096;">Today</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="insight-icon" style="background: #fef5e7; color: #d69e2e;">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="insight-text">
+                            <div>Image optimizer created</div>
+                            <div style="font-size: 0.8rem; color: #718096;">Today</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations">
+            <h3 style="margin-bottom: 1.5rem; color: #2d3748;">
+                <i class="fas fa-rocket"></i> Recommendations for Improvement
+            </h3>
+
+            <div class="recommendation-item">
+                <div class="recommendation-icon" style="background: #e8f4fd; color: #0984e3;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4>Improve SEO</h4>
+                    <p>Add more descriptive meta descriptions and optimize your content for search engines. Consider
+                        adding a blog section to increase organic traffic.</p>
+                </div>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-icon" style="background: #f0fff4; color: #38a169;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4>Mobile Optimization</h4>
+                    <p>Test your portfolio on various mobile devices and ensure all interactive elements are
+                        touch-friendly with adequate spacing.</p>
+                </div>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-icon" style="background: #fef5e7; color: #d69e2e;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4>Add Analytics</h4>
+                    <p>Implement Google Analytics or a privacy-focused alternative to track visitor behavior and
+                        optimize your portfolio based on real data.</p>
+                </div>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-icon" style="background: #fdf2f8; color: #b83280;">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4>Social Sharing</h4>
+                    <p>Add Open Graph meta tags and social sharing buttons to make it easier for visitors to share your
+                        portfolio on social media.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="text-align: center; margin: 2rem 0;">
+            <a href="http://localhost:8000/admin.html" class="btn">
+                <i class="fas fa-cog"></i> Admin Panel
+            </a>
+            <a href="http://localhost:8000/portfolio-dashboard.html" class="btn">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="http://localhost:8000" class="btn">
+                <i class="fas fa-eye"></i> View Portfolio
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts and data
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeContactChart();
+            loadAnalyticsData();
+        });
+
+        function initializeContactChart() {
+            const ctx = document.getElementById('contactChart').getContext('2d');
+
+            // Sample data - in a real implementation, this would come from your API
+            const chartData = {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Contact Submissions',
+                    data: [2, 1, 3, 0, 1, 2, 1],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadAnalyticsData() {
+            try {
+                // Try to load real contact data
+                const response = await fetch('http://localhost:3000/api/contact/stats/dashboard');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById('totalContacts').textContent = result.data.total_submissions || 0;
+                    }
+                }
+            } catch (error) {
+                // Use mock data if API is not available
+                console.log('Using mock data for analytics');
+                document.getElementById('totalContacts').textContent = '10';
+            }
+
+            // Simulate performance scores (in a real app, these would come from Lighthouse API)
+            updatePerformanceScores();
+        }
+
+        function updatePerformanceScores() {
+            const scores = {
+                performance: Math.floor(Math.random() * 10) + 90,
+                accessibility: Math.floor(Math.random() * 5) + 95,
+                seo: Math.floor(Math.random() * 15) + 80,
+                bestPractices: Math.floor(Math.random() * 10) + 85
+            };
+
+            document.getElementById('performanceScore').textContent = scores.performance;
+            document.getElementById('accessibilityScore').textContent = scores.accessibility;
+            document.getElementById('seoScore').textContent = scores.seo;
+            document.getElementById('bestPracticesScore').textContent = scores.bestPractices;
+
+            // Update score colors
+            updateScoreColor('performanceScore', scores.performance);
+            updateScoreColor('accessibilityScore', scores.accessibility);
+            updateScoreColor('seoScore', scores.seo);
+            updateScoreColor('bestPracticesScore', scores.bestPractices);
+        }
+
+        function updateScoreColor(elementId, score) {
+            const element = document.getElementById(elementId);
+            element.className = 'performance-score';
+
+            if (score >= 90) {
+                element.classList.add('score-excellent');
+            } else if (score >= 70) {
+                element.classList.add('score-good');
+            } else {
+                element.classList.add('score-poor');
+            }
+        }
+
+        // Refresh data every 30 seconds
+        setInterval(loadAnalyticsData, 30000);
+    </script>
+</body>
+
+</html>

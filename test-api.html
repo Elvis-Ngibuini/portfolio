@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Portfolio API Test</h1>
+
+    <div class="test-section">
+        <h2>Backend Connection Test</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <button onclick="testProjects()">Test Projects API</button>
+        <button onclick="testContactGet()">Test Contact API (GET)</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Contact Form Test</h2>
+        <p><strong>Note:</strong> If you get a rate limit error, the server limits contact form submissions to prevent
+            spam.</p>
+        <form id="test-contact-form">
+            <div>
+                <label>Name: <input type="text" name="name" value="Test User" required></label>
+            </div>
+            <div>
+                <label>Email: <input type="email" name="email" value="test@example.com" required></label>
+            </div>
+            <div>
+                <label>Subject: <input type="text" name="subject" value="API Test Message" required></label>
+            </div>
+            <div>
+                <label>Message: <textarea name="message"
+                        required>This is a test message from the API test page.</textarea></label>
+            </div>
+            <button type="submit">Submit Test Contact Form</button>
+        </form>
+        <div id="contact-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Information</h2>
+        <div id="debug-info">
+            <p><strong>Frontend URL:</strong> <span id="frontend-url"></span></p>
+            <p><strong>Backend URL:</strong> <span id="backend-url"></span></p>
+            <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+        const BACKEND_URL = 'http://localhost:3000';
+
+        // Display debug info
+        document.getElementById('frontend-url').textContent = window.location.origin;
+        document.getElementById('backend-url').textContent = BACKEND_URL;
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+
+        // Helper function to display results
+        function displayResult(elementId, success, data) {
+            const element = document.getElementById(elementId);
+            element.className = 'test-section ' + (success ? 'success' : 'error');
+            element.innerHTML = `
+                <h3>${success ? '✅ Success' : '❌ Error'}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        // Test health endpoint
+        async function testHealth() {
+            try {
+                console.log('Testing health endpoint...');
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                console.log('Health response:', data);
+                displayResult('health-result', response.ok, data);
+            } catch (error) {
+                console.error('Health test error:', error);
+                displayResult('health-result', false, { error: error.message });
+            }
+        }
+
+        // Test projects API
+        async function testProjects() {
+            try {
+                console.log('Testing projects API...');
+                const response = await fetch(`${API_BASE_URL}/projects`);
+                const data = await response.json();
+                console.log('Projects response:', data);
+                displayResult('health-result', response.ok, data);
+            } catch (error) {
+                console.error('Projects test error:', error);
+                displayResult('health-result', false, { error: error.message });
+            }
+        }
+
+        // Test contact API (GET)
+        async function testContactGet() {
+            try {
+                console.log('Testing contact API (GET)...');
+                const response = await fetch(`${API_BASE_URL}/contact`);
+                const data = await response.json();
+                console.log('Contact GET response:', data);
+                displayResult('health-result', response.ok, data);
+            } catch (error) {
+                console.error('Contact GET test error:', error);
+                displayResult('health-result', false, { error: error.message });
+            }
+        }
+
+        // Handle contact form submission
+        document.getElementById('test-contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
+
+            try {
+                console.log('Submitting contact form...', data);
+                const response = await fetch(`${API_BASE_URL}/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Contact form response:', result);
+                displayResult('contact-result', response.ok, result);
+
+                if (response.ok) {
+                    e.target.reset();
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                displayResult('contact-result', false, { error: error.message });
+            }
+        });
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running auto-tests...');
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+
+</html>

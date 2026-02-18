@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Links Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .test-section {
+            background: white;
+            color: #333;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .status-pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-test {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .info-box {
+            background: #e8f4fd;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checklist li i {
+            color: #48bb78;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-check-circle"></i> Contact Links Test</h1>
+            <p>Test all contact methods to ensure they work correctly</p>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-envelope"></i> Email Contact</h2>
+
+            <div class="test-item">
+                <h3>
+                    <i class="fas fa-at"></i> Email Link
+                    <span class="status status-test">Click to Test</span>
+                </h3>
+                <p><strong>Expected:</strong> Opens your default email client with elvisngibuini@gmail.com</p>
+                <a href="mailto:elvisngibuini@gmail.com" class="test-link">
+                    <i class="fas fa-envelope"></i> Test Email Link
+                </a>
+            </div>
+
+            <div class="test-item">
+                <h3>
+                    <i class="fas fa-paper-plane"></i> Contact Form
+                    <span class="status status-test">Click to Test</span>
+                </h3>
+                <p><strong>Expected:</strong> Form sends email to elvisngibuini@gmail.com</p>
+                <a href="http://localhost:8000#contact" class="test-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Test Contact Form
+                </a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-phone"></i> Phone Contact</h2>
+
+            <div class="test-item">
+                <h3>
+                    <i class="fas fa-mobile-alt"></i> Phone Link
+                    <span class="status status-test">Click to Test</span>
+                </h3>
+                <p><strong>Expected:</strong> On mobile, initiates call to +254 757 953 492</p>
+                <a href="tel:+254757953492" class="test-link">
+                    <i class="fas fa-phone"></i> Test Phone Link
+                </a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-share-alt"></i> Social Media Links</h2>
+
+            <div class="test-item">
+                <h3>
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                    <span class="status status-test">Click to Test</span>
+                </h3>
+                <p><strong>Expected:</strong> Opens LinkedIn profile in new tab</p>
+                <a href="https://linkedin.com/in/eluis-ngibuni" class="test-link" target="_blank"
+                    rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i> Test LinkedIn Link
+                </a>
+            </div>
+
+            <div class="test-item">
+                <h3>
+                    <i class="fab fa-github"></i> GitHub
+                    <span class="status status-test">Click to Test</span>
+                </h3>
+                <p><strong>Expected:</strong> Opens GitHub profile in new tab</p>
+                <a href="https://github.com/EluisNgibuni" class="test-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-github"></i> Test GitHub Link
+                </a>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3><i class="fas fa-clipboard-check"></i> Testing Checklist</h3>
+            <ul class="checklist">
+                <li><i class="fas fa-check-circle"></i> Email link opens email client</li>
+                <li><i class="fas fa-check-circle"></i> Email is set to: elvisngibuini@gmail.com</li>
+                <li><i class="fas fa-check-circle"></i> Phone link works on mobile</li>
+                <li><i class="fas fa-check-circle"></i> LinkedIn opens correct profile</li>
+                <li><i class="fas fa-check-circle"></i> GitHub opens correct profile</li>
+                <li><i class="fas fa-check-circle"></i> All external links open in new tab</li>
+                <li><i class="fas fa-check-circle"></i> Contact form sends to correct email</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-globe"></i> View Live Portfolio</h2>
+            <p>Test the contact section on your actual portfolio:</p>
+            <a href="http://localhost:8000" class="test-link" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Open Portfolio
+            </a>
+            <a href="http://localhost:8000#contact" class="test-link" target="_blank">
+                <i class="fas fa-envelope"></i> Go to Contact Section
+            </a>
+        </div>
+
+        <div
+            style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+            <h3 style="margin-bottom: 1rem;">✅ All Updates Complete!</h3>
+            <p style="opacity: 0.9;">Your contact section now has fully functional links that direct users to the
+                correct platforms.</p>
+        </div>
+    </div>
+</body>
+
+</html>

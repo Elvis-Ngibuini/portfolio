@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: white;
+        }
+
+        .redirect-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+        }
+
+        .redirect-container h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .redirect-container p {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-box {
+            background: rgba(245, 101, 101, 0.2);
+            border: 2px solid #f56565;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .success-box {
+            background: rgba(72, 187, 120, 0.2);
+            border: 2px solid #48bb78;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="redirect-container">
+        <h1>🚨 Admin Panel Access</h1>
+
+        <div id="errorMessage" class="error-box">
+            <strong>CORS Error Detected!</strong><br>
+            You're opening the admin panel incorrectly, which causes connection errors.
+        </div>
+
+        <div class="success-box">
+            <strong>✅ Solution:</strong><br>
+            Click the button below to access the admin panel correctly through the HTTP server.
+        </div>
+
+        <p>
+            <strong>Wrong:</strong> Opening admin.html directly from file explorer<br>
+            <strong>Right:</strong> Accessing through http://localhost:8000
+        </p>
+
+        <div>
+            <a href="http://localhost:8000/admin.html" class="btn">
+                🔧 Open Admin Panel Correctly
+            </a>
+            <a href="http://localhost:8000/launch-portfolio.html" class="btn">
+                🚀 Open Portfolio Launcher
+            </a>
+        </div>
+
+        <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+            <strong>Remember:</strong> Always access your portfolio tools through http://localhost:8000
+        </p>
+    </div>
+
+    <script>
+        // Auto-redirect after 5 seconds
+        setTimeout(() => {
+            window.location.href = 'http://localhost:8000/admin.html';
+        }, 5000);
+
+        // Show countdown
+        let countdown = 5;
+        const countdownElement = document.createElement('p');
+        countdownElement.style.marginTop = '1rem';
+        countdownElement.style.fontSize = '0.9rem';
+        document.querySelector('.redirect-container').appendChild(countdownElement);
+
+        const updateCountdown = () => {
+            countdownElement.textContent = `Auto-redirecting in ${countdown} seconds...`;
+            countdown--;
+            if (countdown >= 0) {
+                setTimeout(updateCountdown, 1000);
+            }
+        };
+        updateCountdown();
+    </script>
+</body>
+
+</html>

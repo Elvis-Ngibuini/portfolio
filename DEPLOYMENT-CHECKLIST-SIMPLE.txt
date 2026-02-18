@@ -1,0 +1,255 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    PORTFOLIO DEPLOYMENT CHECKLIST                            ║
+║                         Simple Step-by-Step Guide                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 1: PRE-DEPLOYMENT (5 minutes)                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Run test-deployment.bat
+      └─ Verifies all files are ready
+      └─ Checks security configuration
+      └─ Should show "Test Results: PASSED"
+
+  [ ] Review test results
+      └─ All files should be marked [OK]
+      └─ Production API key should be configured
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 2: FRONTEND DEPLOYMENT (15 minutes)                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Create GitHub account (if you don't have one)
+      └─ Go to: https://github.com/join
+
+  [ ] Create new repository
+      └─ Go to: https://github.com/new
+      └─ Name: portfolio
+      └─ Public repository
+      └─ Don't initialize with README
+
+  [ ] Initialize Git locally
+      └─ Run: git init
+      └─ Run: git branch -M main
+
+  [ ] Connect to GitHub
+      └─ Run: git remote add origin https://github.com/EluisNgibuni/portfolio.git
+
+  [ ] Deploy code
+      └─ Option A: Run deploy.bat (automated)
+      └─ Option B: Run these commands:
+          git add .
+          git commit -m "Initial deployment"
+          git push -u origin main
+
+  [ ] Enable GitHub Pages
+      └─ Go to: https://github.com/EluisNgibuni/portfolio/settings/pages
+      └─ Source: Deploy from branch
+      └─ Branch: main
+      └─ Folder: / (root)
+      └─ Click Save
+
+  [ ] Wait for deployment (2-3 minutes)
+      └─ GitHub will show "Your site is published at..."
+
+  [ ] Test your live site
+      └─ Visit: https://eluisngibuni.github.io/portfolio
+      └─ Check all pages load correctly
+      └─ Verify images display
+      └─ Test navigation links
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 3: BACKEND DEPLOYMENT (30 minutes) - Optional but Recommended         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Get Gmail App Password
+      └─ Go to: https://myaccount.google.com/security
+      └─ Enable 2-Step Verification (if not already)
+      └─ Go to: https://myaccount.google.com/apppasswords
+      └─ Create password for "Mail" → "Other (Portfolio)"
+      └─ Copy 16-character password (format: xxxx xxxx xxxx xxxx)
+      └─ Save it somewhere safe
+
+  [ ] Sign up for Render
+      └─ Go to: https://render.com
+      └─ Click "Get Started for Free"
+      └─ Sign up with GitHub (recommended)
+
+  [ ] Deploy backend service
+      └─ Click "New +" → "Web Service"
+      └─ Connect GitHub account
+      └─ Select "portfolio" repository
+      └─ Configure:
+          Name: portfolio-api
+          Root Directory: server
+          Build Command: npm install
+          Start Command: npm start
+          Instance Type: Free
+
+  [ ] Add environment variables
+      └─ Click "Advanced"
+      └─ Add each variable (see DEPLOYMENT-COMMANDS.txt for values):
+          NODE_ENV = production
+          FRONTEND_URL = https://eluisngibuni.github.io
+          EMAIL_HOST = smtp.gmail.com
+          EMAIL_PORT = 587
+          EMAIL_USER = elvisngibuini@gmail.com
+          EMAIL_PASS = [your 16-char password from above]
+          EMAIL_FROM = elvisngibuini@gmail.com
+          EMAIL_TO = elvisngibuini@gmail.com
+          ADMIN_API_KEY = lyVRAsues3sICGgJjXDfcYy5dnRFq5eJ9o34i6yL/fQ=
+          JWT_SECRET = portfolio_jwt_secret_2026_secure
+
+  [ ] Create web service
+      └─ Click "Create Web Service"
+      └─ Wait for deployment (5-10 minutes)
+      └─ Watch logs for "Your service is live 🎉"
+
+  [ ] Copy backend URL
+      └─ Copy from top of Render page
+      └─ Format: https://portfolio-api-xxxx.onrender.com
+      └─ Save this URL for next phase
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 4: CONNECT FRONTEND TO BACKEND (10 minutes)                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Update admin.html
+      └─ Open admin.html in code editor
+      └─ Find line 630: const API_BASE = 'http://localhost:3000/api';
+      └─ Replace with: const API_BASE = 'https://your-backend-url.com/api';
+      └─ Use your actual backend URL from Phase 3
+      └─ Save file
+
+  [ ] Update js/api.js
+      └─ Open js/api.js in code editor
+      └─ Find line 4: const API_BASE_URL = 'http://localhost:3000/api';
+      └─ Replace with: const API_BASE_URL = 'https://your-backend-url.com/api';
+      └─ Use your actual backend URL from Phase 3
+      └─ Save file
+
+  [ ] Redeploy frontend
+      └─ Run: git add .
+      └─ Run: git commit -m "Connect to backend API"
+      └─ Run: git push origin main
+      └─ Wait 2-3 minutes for GitHub Pages to update
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 5: TESTING (10 minutes)                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Test contact form
+      └─ Visit: https://eluisngibuni.github.io/portfolio
+      └─ Scroll to contact section
+      └─ Fill out form with test data
+      └─ Click "Send Message"
+      └─ Should see success message
+      └─ Check email (elvisngibuini@gmail.com) for notification
+
+  [ ] Test admin panel
+      └─ Visit: https://eluisngibuni.github.io/portfolio/admin.html
+      └─ Should see your test contact submission
+      └─ Click "View" to see details
+      └─ Try updating status to "Read"
+      └─ Try adding notes
+      └─ Verify changes save
+
+  [ ] Test on mobile
+      └─ Open portfolio on your phone
+      └─ Check responsive design
+      └─ Test navigation
+      └─ Try contact form
+
+  [ ] Check browser console
+      └─ Press F12 to open developer tools
+      └─ Check Console tab for errors
+      └─ Should see no red errors
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PHASE 6: POST-DEPLOYMENT (15 minutes) - Optional                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  [ ] Submit to Google Search Console
+      └─ Go to: https://search.google.com/search-console
+      └─ Add property: https://eluisngibuni.github.io/portfolio
+      └─ Verify ownership (auto-verified for GitHub Pages)
+      └─ Submit sitemap: https://eluisngibuni.github.io/portfolio/sitemap.xml
+
+  [ ] Set up analytics (optional)
+      └─ Create Google Analytics account
+      └─ Get tracking ID
+      └─ Add to index.html
+
+  [ ] Share your portfolio
+      └─ Add to LinkedIn profile
+      └─ Add to resume
+      └─ Share on Twitter/X
+      └─ Add to email signature
+      └─ Share with professional network
+
+  [ ] Bookmark important URLs
+      └─ Portfolio: https://eluisngibuni.github.io/portfolio
+      └─ Admin: https://eluisngibuni.github.io/portfolio/admin.html
+      └─ GitHub: https://github.com/EluisNgibuni/portfolio
+      └─ Render: https://dashboard.render.com
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              TROUBLESHOOTING                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+❌ Contact form shows error
+   ✓ Open browser console (F12) and check for errors
+   ✓ Verify backend URL is correct in js/api.js
+   ✓ Wait 30 seconds (Render free tier may be sleeping)
+   ✓ Check backend is running: visit https://your-backend-url.com/api/health
+
+❌ Admin panel shows "Authentication failed"
+   ✓ Verify API key in admin.html matches backend
+   ✓ Check browser console for 401 errors
+   ✓ Clear browser cache and try again
+
+❌ Emails not received
+   ✓ Check spam folder
+   ✓ Verify Gmail App Password is correct (16 characters, no spaces)
+   ✓ Check Render logs for email errors
+   ✓ Ensure 2-Step Verification is enabled on Gmail
+
+❌ GitHub Pages not working
+   ✓ Wait 2-3 minutes after enabling
+   ✓ Check GitHub Actions tab for deployment status
+   ✓ Verify branch is set to "main" in Pages settings
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            DEPLOYMENT SUMMARY                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Total Time Estimate:
+  • Frontend Only: 15-20 minutes
+  • Full Deployment: 50-60 minutes
+
+What You'll Have:
+  ✓ Professional portfolio website
+  ✓ Working contact form with email notifications
+  ✓ Admin panel to manage contacts
+  ✓ Mobile responsive design
+  ✓ SEO optimized
+  ✓ Secure and production-ready
+
+Your URLs:
+  Portfolio:    https://eluisngibuni.github.io/portfolio
+  Admin Panel:  https://eluisngibuni.github.io/portfolio/admin.html
+  GitHub Repo:  https://github.com/EluisNgibuni/portfolio
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         YOU'RE READY TO DEPLOY! 🚀                           ║
+║                                                                              ║
+║  Start with PHASE 1 and work through each phase in order.                   ║
+║  Check off each item as you complete it.                                     ║
+║  If you get stuck, check the troubleshooting section.                       ║
+║                                                                              ║
+║  Good luck! Your portfolio will be live soon! 🎉                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Created: February 18, 2026
+Status: Ready for Deployment

@@ -1,0 +1,52 @@
+# Environment variables
+.env
+.env.local
+.env.production
+server/.env
+server/.env.local
+server/.env.production
+
+# Credentials and sensitive files
+MY-CREDENTIALS.txt
+*credentials*
+*password*
+
+# Node modules
+node_modules/
+server/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build files
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+server/storage/*.json
+!server/storage/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Sensitive data
+*.pem
+*.key
+*.cert

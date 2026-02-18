@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Content Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        .section h2 {
+            color: #00d4ff;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .update-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .update-card:hover {
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+        }
+
+        .update-card h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-card p {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-path {
+            background: #e2e8f0;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 0.8rem;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #00d4ff;
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: #00d4ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #0099cc;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .update-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1><i class="fas fa-edit"></i> Portfolio Content Manager</h1>
+        <p>Easy tools to update your portfolio content, images, and projects</p>
+    </div>
+
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="section">
+            <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            <div class="quick-actions">
+                <a href="http://localhost:8000" class="btn" target="_blank">
+                    <i class="fas fa-eye"></i> View Portfolio
+                </a>
+                <a href="admin.html" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-cog"></i> Admin Panel
+                </a>
+                <button class="btn btn-secondary" onclick="openFileExplorer()">
+                    <i class="fas fa-folder"></i> Open Project Folder
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Updates -->
+        <div class="section">
+            <h2><i class="fas fa-edit"></i> Content Updates</h2>
+
+            <div class="update-grid">
+                <!-- Profile Image -->
+                <div class="update-card" onclick="showImageUpdate()">
+                    <h3><i class="fas fa-user-circle"></i> Update Profile Image</h3>
+                    <p>Change your main profile photo that appears in the hero section</p>
+                    <div class="file-path">Current: images/eluis.jpg</div>
+                    <ol class="steps">
+                        <li>Add your new image to the <code>images/</code> folder</li>
+                        <li>Name it something descriptive (e.g., profile-2025.jpg)</li>
+                        <li>Update the image path in index.html</li>
+                        <li>Test the changes</li>
+                    </ol>
+                </div>
+
+                <!-- Personal Info -->
+                <div class="update-card" onclick="showPersonalInfoUpdate()">
+                    <h3><i class="fas fa-id-card"></i> Update Personal Information</h3>
+                    <p>Change your name, title, description, and contact details</p>
+                    <div class="file-path">File: index.html (lines 50-80)</div>
+                    <ol class="steps">
+                        <li>Open index.html in a text editor</li>
+                        <li>Find the hero section</li>
+                        <li>Update name, title, and description</li>
+                        <li>Update contact information in the contact section</li>
+                    </ol>
+                </div>
+
+                <!-- Add New Project -->
+                <div class="update-card" onclick="showProjectUpdate()">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Project</h3>
+                    <p>Add a new project to your portfolio with images and descriptions</p>
+                    <div class="file-path">File: index.html (Projects Section)</div>
+                    <ol class="steps">
+                        <li>Add project image to <code>images/</code> folder</li>
+                        <li>Copy an existing project card in index.html</li>
+                        <li>Update the project details</li>
+                        <li>Add appropriate tech stack tags</li>
+                    </ol>
+                </div>
+
+                <!-- Update Skills -->
+                <div class="update-card" onclick="showSkillsUpdate()">
+                    <h3><i class="fas fa-cogs"></i> Update Skills & Technologies</h3>
+                    <p>Add new skills, update proficiency levels, or reorganize tech stack</p>
+                    <div class="file-path">File: index.html (Skills & Tech Stack Sections)</div>
+                    <ol class="steps">
+                        <li>Find the skills or tech-stack section</li>
+                        <li>Add new skill items or update existing ones</li>
+                        <li>Update proficiency percentages</li>
+                        <li>Add appropriate icons from Font Awesome</li>
+                    </ol>
+                </div>
+
+                <!-- Work Experience -->
+                <div class="update-card" onclick="showExperienceUpdate()">
+                    <h3><i class="fas fa-briefcase"></i> Add Work Experience</h3>
+                    <p>Add new job positions, internships, or update existing experience</p>
+                    <div class="file-path">File: index.html (Experience Section)</div>
+                    <ol class="steps">
+                        <li>Find the timeline section in experience</li>
+                        <li>Copy an existing timeline-item</li>
+                        <li>Update job title, company, dates</li>
+                        <li>Add achievements and tech tags</li>
+                    </ol>
+                </div>
+
+                <!-- Challenges/Certifications -->
+                <div class="update-card" onclick="showChallengesUpdate()">
+                    <h3><i class="fas fa-certificate"></i> Add Challenges/Certifications</h3>
+                    <p>Add new security challenges, certifications, or learning achievements</p>
+                    <div class="file-path">File: index.html (Challenges Section)</div>
+                    <ol class="steps">
+                        <li>Add certificate image to <code>images/</code> folder</li>
+                        <li>Copy an existing challenge-card</li>
+                        <li>Update challenge details and learnings</li>
+                        <li>Add appropriate tools and categories</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Management -->
+        <div class="section">
+            <h2><i class="fas fa-folder-open"></i> File Management Guide</h2>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Always backup your files before making changes. Test changes locally
+                before deploying.
+            </div>
+
+            <h3>Key Files & Folders:</h3>
+            <div class="code-block">
+                portfolio/
+                ├── index.html # Main portfolio page
+                ├── resume.html # Resume page
+                ├── admin.html # Contact admin panel
+                ├── images/ # All images and photos
+                │ ├── eluis.jpg # Your profile photo
+                │ ├── *.png # Project screenshots
+                │ └── *.jpg # Certificate images
+                ├── css/
+                │ └── styles.css # All styling
+                ├── js/
+                │ ├── script.js # Main JavaScript
+                │ └── api.js # Contact form handling
+                └── server/ # Backend for contact form
+            </div>
+
+            <div class="tip">
+                <strong>💡 Pro Tip:</strong> Use descriptive file names for images (e.g.,
+                "project-ecommerce-homepage.png" instead of "image1.png")
+            </div>
+        </div>
+
+        <!-- Step-by-Step Guides -->
+        <div class="section">
+            <h2><i class="fas fa-list-ol"></i> Detailed Update Guides</h2>
+
+            <div id="detailed-guides" style="display: none;">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+
+            <button class="btn" onclick="toggleDetailedGuides()">
+                <i class="fas fa-book"></i> Show Detailed Guides
+            </button>
+        </div>
+
+        <!-- Tools & Resources -->
+        <div class="section">
+            <h2><i class="fas fa-tools"></i> Recommended Tools</h2>
+
+            <div class="update-grid">
+                <div class="update-card">
+                    <h3><i class="fas fa-code"></i> Code Editors</h3>
+                    <ul>
+                        <li>Visual Studio Code (Free, Recommended)</li>
+                        <li>Sublime Text</li>
+                        <li>Atom</li>
+                    </ul>
+                </div>
+
+                <div class="update-card">
+                    <h3><i class="fas fa-image"></i> Image Tools</h3>
+                    <ul>
+                        <li>TinyPNG (Compress images)</li>
+                        <li>Canva (Create graphics)</li>
+                        <li>GIMP (Free image editor)</li>
+                    </ul>
+                </div>
+
+                <div class="update-card">
+                    <h3><i class="fas fa-icons"></i> Icon Resources</h3>
+                    <ul>
+                        <li>Font Awesome (Already included)</li>
+                        <li>Heroicons</li>
+                        <li>Feather Icons</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showImageUpdate() {
+            alert('Image Update Guide:\n\n1. Add your new image to the images/ folder\n2. Open index.html\n3. Find line with src="images/eluis.jpg"\n4. Replace "eluis.jpg" with your new image name\n5. Save and refresh your browser');
+        }
+
+        function showPersonalInfoUpdate() {
+            alert('Personal Info Update:\n\n1. Open index.html\n2. Find the <h1> tag with your name\n3. Update the name and title\n4. Find the hero-subtitle paragraph\n5. Update your description\n6. Scroll to contact section and update email/phone');
+        }
+
+        function showProjectUpdate() {
+            alert('Add New Project:\n\n1. Add project screenshot to images/ folder\n2. Open index.html\n3. Find the projects-grid section\n4. Copy an entire project-card div\n5. Update image src, title, description\n6. Update tech-stack spans\n7. Update GitHub/demo links');
+        }
+
+        function showSkillsUpdate() {
+            alert('Skills Update:\n\n1. Open index.html\n2. Find the skills-grid or tech-grid section\n3. To add new skill: copy a skill-item div\n4. Update skill name and data-level attribute\n5. For tech stack: copy tech-item and update icon/name');
+        }
+
+        function showExperienceUpdate() {
+            alert('Experience Update:\n\n1. Open index.html\n2. Find the timeline section\n3. Copy a timeline-item div\n4. Update job title, company, dates\n5. Update the timeline-details list\n6. Update tech-tags at the bottom');
+        }
+
+        function showChallengesUpdate() {
+            alert('Challenges Update:\n\n1. Add certificate image to images/ folder\n2. Open index.html\n3. Find challenges-grid section\n4. Copy a challenge-card div\n5. Update title, category, description\n6. Update challenge-details list\n7. Update image src and tool-tags');
+        }
+
+        function openFileExplorer() {
+            alert('To open your project folder:\n\n1. Navigate to where you saved this portfolio\n2. Or use your code editor to open the folder\n3. The main files to edit are:\n   - index.html (main page)\n   - images/ folder (for photos)\n   - css/styles.css (for styling)');
+        }
+
+        let guidesVisible = false;
+        function toggleDetailedGuides() {
+            const guidesDiv = document.getElementById('detailed-guides');
+            const button = event.target;
+
+            if (!guidesVisible) {
+                guidesDiv.innerHTML = `
+                    <h3>🖼️ Changing Your Profile Image</h3>
+                    <div class="code-block">
+1. Save your new image in the images/ folder
+2. Open index.html in a text editor
+3. Find this line (around line 70):
+   &lt;img src="images/eluis.jpg" alt="Eluis Ngibuini Thamaini" class="profile-img"&gt;
+4. Replace "eluis.jpg" with your new image filename
+5. Save the file and refresh your browser
+                    </div>
+
+                    <h3>📝 Adding a New Project</h3>
+                    <div class="code-block">
+1. Add your project screenshot to images/ folder
+2. In index.html, find the projects-grid section
+3. Copy this entire block and modify:
+
+&lt;div class="project-card" data-category="web"&gt;
+    &lt;div class="project-image"&gt;
+        &lt;img src="images/YOUR-PROJECT-IMAGE.png" alt="Your Project Name"&gt;
+    &lt;/div&gt;
+    &lt;div class="project-content"&gt;
+        &lt;h3&gt;Your Project Name&lt;/h3&gt;
+        &lt;p&gt;Your project description here...&lt;/p&gt;
+        &lt;div class="tech-stack"&gt;
+            &lt;span&gt;React&lt;/span&gt;
+            &lt;span&gt;Node.js&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                    </div>
+
+                    <h3>🛠️ Adding New Skills</h3>
+                    <div class="code-block">
+1. Find the skills-grid section in index.html
+2. To add a new skill with progress bar:
+
+&lt;div class="skill-item" data-level="85"&gt;
+    &lt;span class="skill-name"&gt;Your New Skill&lt;/span&gt;
+    &lt;div class="skill-bar"&gt;
+        &lt;div class="skill-level"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+3. Change data-level to your proficiency (0-100)
+4. Update the skill name
+                    </div>
+                `;
+                guidesDiv.style.display = 'block';
+                button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Detailed Guides';
+                guidesVisible = true;
+            } else {
+                guidesDiv.style.display = 'none';
+                button.innerHTML = '<i class="fas fa-book"></i> Show Detailed Guides';
+                guidesVisible = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

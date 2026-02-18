@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Image Optimizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .optimizer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #74b9ff;
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #0984e3;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #0984e3;
+            background: #e8f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #74b9ff;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .image-preview {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .preview-item {
+            text-align: center;
+        }
+
+        .preview-item h3 {
+            color: #74b9ff;
+            margin-bottom: 1rem;
+        }
+
+        .preview-item img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .controls {
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #74b9ff;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+
+        .recommendations {
+            background: #e8f4fd;
+            border: 1px solid #74b9ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .recommendations h3 {
+            color: #0984e3;
+            margin-bottom: 1rem;
+        }
+
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .rec-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #74b9ff;
+        }
+
+        .rec-item h4 {
+            color: #0984e3;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e1e8ed;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #74b9ff, #0984e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .error-message {
+            background: #ff7675;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .rec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-image"></i> Portfolio Image Optimizer</h1>
+            <p>Optimize your images for better portfolio performance</p>
+        </div>
+
+        <div class="optimizer-card">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)"
+                ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Click to upload or drag & drop your image</div>
+                <div class="upload-subtext">Supports JPG, PNG, WebP (Max 10MB)</div>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="handleFileSelect(event)">
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="image-preview" id="imagePreview">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="controls" id="controls">
+                    <div class="control-group">
+                        <label for="quality">Quality (%)</label>
+                        <input type="range" id="quality" min="10" max="100" value="80" oninput="updatePreview()">
+                        <span id="qualityValue">80%</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="width">Max Width (px)</label>
+                        <input type="number" id="width" value="800" oninput="updatePreview()">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="height">Max Height (px)</label>
+                        <input type="number" id="height" value="600" oninput="updatePreview()">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="format">Output Format</label>
+                        <select id="format" onchange="updatePreview()">
+                            <option value="jpeg">JPEG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h3>Original Image</h3>
+                        <img id="originalImage" alt="Original">
+                        <div class="image-info" id="originalInfo"></div>
+                    </div>
+
+                    <div class="preview-item">
+                        <h3>Optimized Image</h3>
+                        <img id="optimizedImage" alt="Optimized">
+                        <div class="image-info" id="optimizedInfo"></div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-success" onclick="downloadOptimized()" id="downloadBtn" disabled>
+                        <i class="fas fa-download"></i> Download Optimized Image
+                    </button>
+                    <button class="btn" onclick="resetOptimizer()">
+                        <i class="fas fa-redo"></i> Upload Another Image
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h3><i class="fas fa-lightbulb"></i> Image Optimization Recommendations</h3>
+            <div class="rec-grid">
+                <div class="rec-item">
+                    <h4>Profile Photos</h4>
+                    <p><strong>Size:</strong> 400x400px</p>
+                    <p><strong>Format:</strong> JPEG or WebP</p>
+                    <p><strong>Quality:</strong> 80-90%</p>
+                </div>
+
+                <div class="rec-item">
+                    <h4>Project Screenshots</h4>
+                    <p><strong>Size:</strong> 800x600px</p>
+                    <p><strong>Format:</strong> JPEG or WebP</p>
+                    <p><strong>Quality:</strong> 75-85%</p>
+                </div>
+
+                <div class="rec-item">
+                    <h4>Certificates</h4>
+                    <p><strong>Size:</strong> 600x400px</p>
+                    <p><strong>Format:</strong> JPEG</p>
+                    <p><strong>Quality:</strong> 85-95%</p>
+                </div>
+
+                <div class="rec-item">
+                    <h4>General Tips</h4>
+                    <p>• Keep file sizes under 200KB</p>
+                    <p>• Use WebP for modern browsers</p>
+                    <p>• Compress before uploading</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalFile = null;
+        let canvas = null;
+        let ctx = null;
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB.');
+                return;
+            }
+
+            hideError();
+            originalFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    displayOriginalImage(img, file);
+                    updatePreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            document.getElementById('imagePreview').style.display = 'block';
+            showProgress(30);
+        }
+
+        function displayOriginalImage(img, file) {
+            const originalImage = document.getElementById('originalImage');
+            originalImage.src = img.src;
+
+            const originalInfo = document.getElementById('originalInfo');
+            originalInfo.innerHTML = `
+                <div class="info-item">
+                    <span>Dimensions:</span>
+                    <span>${img.width} × ${img.height}px</span>
+                </div>
+                <div class="info-item">
+                    <span>File Size:</span>
+                    <span>${formatFileSize(file.size)}</span>
+                </div>
+                <div class="info-item">
+                    <span>Format:</span>
+                    <span>${file.type.split('/')[1].toUpperCase()}</span>
+                </div>
+            `;
+
+            // Set default dimensions
+            document.getElementById('width').value = Math.min(img.width, 800);
+            document.getElementById('height').value = Math.min(img.height, 600);
+
+            showProgress(60);
+        }
+
+        function updatePreview() {
+            if (!originalFile) return;
+
+            const quality = document.getElementById('quality').value / 100;
+            const maxWidth = parseInt(document.getElementById('width').value);
+            const maxHeight = parseInt(document.getElementById('height').value);
+            const format = document.getElementById('format').value;
+
+            document.getElementById('qualityValue').textContent = document.getElementById('quality').value + '%';
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    optimizeImage(img, maxWidth, maxHeight, quality, format);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(originalFile);
+        }
+
+        function optimizeImage(img, maxWidth, maxHeight, quality, format) {
+            // Calculate new dimensions
+            let { width, height } = calculateDimensions(img.width, img.height, maxWidth, maxHeight);
+
+            // Create canvas
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                ctx = canvas.getContext('2d');
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const mimeType = `image/${format}`;
+            const dataURL = canvas.toDataURL(mimeType, quality);
+
+            // Display optimized image
+            const optimizedImage = document.getElementById('optimizedImage');
+            optimizedImage.src = dataURL;
+
+            // Calculate file size (approximate)
+            const optimizedSize = Math.round((dataURL.length - 22) * 3 / 4);
+
+            const optimizedInfo = document.getElementById('optimizedInfo');
+            optimizedInfo.innerHTML = `
+                <div class="info-item">
+                    <span>Dimensions:</span>
+                    <span>${width} × ${height}px</span>
+                </div>
+                <div class="info-item">
+                    <span>File Size:</span>
+                    <span>${formatFileSize(optimizedSize)}</span>
+                </div>
+                <div class="info-item">
+                    <span>Format:</span>
+                    <span>${format.toUpperCase()}</span>
+                </div>
+                <div class="info-item">
+                    <span>Reduction:</span>
+                    <span>${Math.round((1 - optimizedSize / originalFile.size) * 100)}%</span>
+                </div>
+            `;
+
+            document.getElementById('downloadBtn').disabled = false;
+            showProgress(100);
+        }
+
+        function calculateDimensions(originalWidth, originalHeight, maxWidth, maxHeight) {
+            let width = originalWidth;
+            let height = originalHeight;
+
+            // Scale down if necessary
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+
+            return { width: Math.round(width), height: Math.round(height) };
+        }
+
+        function downloadOptimized() {
+            if (!canvas) return;
+
+            const format = document.getElementById('format').value;
+            const quality = document.getElementById('quality').value / 100;
+            const mimeType = `image/${format}`;
+
+            canvas.toBlob(function (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `optimized-${originalFile.name.split('.')[0]}.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, mimeType, quality);
+        }
+
+        function resetOptimizer() {
+            originalFile = null;
+            canvas = null;
+            ctx = null;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('progressFill').style.width = '0%';
+            hideError();
+        }
+
+        function showProgress(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+
+</html>

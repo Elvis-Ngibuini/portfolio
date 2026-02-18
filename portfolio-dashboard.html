@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .card-title h3 {
+            font-size: 1.4rem;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .card-content {
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            color: #4a5568;
+        }
+
+        .feature-list li i {
+            color: #48bb78;
+            margin-right: 0.75rem;
+            width: 16px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: #f56565;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .quick-stats {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .help-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .help-item {
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .help-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .help-item h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                flex: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Portfolio Management Dashboard</h1>
+        <p>Your complete toolkit for managing and updating your portfolio</p>
+    </div>
+
+    <div class="container">
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">
+                <i class="fas fa-chart-line"></i> Portfolio Overview
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="projectCount">3</div>
+                    <div class="stat-label">Projects</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="skillCount">15+</div>
+                    <div class="stat-label">Skills</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="experienceCount">2</div>
+                    <div class="stat-label">Work Experience</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="certCount">6</div>
+                    <div class="stat-label">Certifications</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Portfolio Manager -->
+            <div class="dashboard-card">
+                <div class="status-indicator" id="portfolioStatus"></div>
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Portfolio Manager</h3>
+                        <p>Visual content management system</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Step-by-step update guides</li>
+                        <li><i class="fas fa-check"></i> Visual interface for changes</li>
+                        <li><i class="fas fa-check"></i> No coding required</li>
+                        <li><i class="fas fa-check"></i> Beginner-friendly</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <a href="portfolio-manager.html" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Open Manager
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content Generator -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #48bb78, #38a169);">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Content Generator</h3>
+                        <p>Generate HTML for new content</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Project HTML generator</li>
+                        <li><i class="fas fa-check"></i> Experience timeline creator</li>
+                        <li><i class="fas fa-check"></i> Skills section builder</li>
+                        <li><i class="fas fa-check"></i> Certificate showcase</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <a href="portfolio-generator.html" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-code"></i> Generate Content
+                    </a>
+                </div>
+            </div>
+
+            <!-- Image Optimizer -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Image Optimizer</h3>
+                        <p>Optimize images for web performance</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Compress images</li>
+                        <li><i class="fas fa-check"></i> Resize for web</li>
+                        <li><i class="fas fa-check"></i> Format conversion</li>
+                        <li><i class="fas fa-check"></i> Quality optimization</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <a href="image-optimizer.html" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-compress"></i> Optimize Images
+                    </a>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="dashboard-card">
+                <div class="status-indicator" id="adminStatus"></div>
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #00d4ff, #0099cc);">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Admin Panel</h3>
+                        <p>Manage contact form submissions</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> View contact submissions</li>
+                        <li><i class="fas fa-check"></i> Bulk actions</li>
+                        <li><i class="fas fa-check"></i> Export to CSV</li>
+                        <li><i class="fas fa-check"></i> Contact notes</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <a href="admin.html" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-shield-alt"></i> Open Admin
+                    </a>
+                </div>
+            </div>
+
+            <!-- Live Portfolio -->
+            <div class="dashboard-card">
+                <div class="status-indicator" id="siteStatus"></div>
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #fd79a8, #e84393);">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Live Portfolio</h3>
+                        <p>View your portfolio website</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Responsive design</li>
+                        <li><i class="fas fa-check"></i> Contact form</li>
+                        <li><i class="fas fa-check"></i> Project showcase</li>
+                        <li><i class="fas fa-check"></i> Professional layout</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <a href="index.html" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-eye"></i> View Portfolio
+                    </a>
+                    <a href="resume.html" class="btn btn-secondary" target="_blank">
+                        <i class="fas fa-file-alt"></i> Resume
+                    </a>
+                </div>
+            </div>
+
+            <!-- Documentation -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Documentation</h3>
+                        <p>Guides and references</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Update guide</li>
+                        <li><i class="fas fa-check"></i> Deployment instructions</li>
+                        <li><i class="fas fa-check"></i> Troubleshooting</li>
+                        <li><i class="fas fa-check"></i> Best practices</li>
+                    </ul>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openGuide()">
+                        <i class="fas fa-book-open"></i> View Guides
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3 style="margin-bottom: 1.5rem; color: #2d3748;">
+                <i class="fas fa-clock"></i> Recent Activity
+            </h3>
+            <div class="activity-item">
+                <div class="activity-icon" style="background: #e8f4fd; color: #0984e3;">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Portfolio management system created</div>
+                    <div class="activity-time">Today</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background: #f0fff4; color: #38a169;">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Admin panel enhanced with new features</div>
+                    <div class="activity-time">Today</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background: #fef5e7; color: #d69e2e;">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Image optimization tools added</div>
+                    <div class="activity-time">Today</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-section">
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">
+                <i class="fas fa-question-circle"></i> Need Help?
+            </h3>
+            <p style="color: #718096; margin-bottom: 1.5rem;">
+                Quick access to common tasks and troubleshooting resources.
+            </p>
+            <div class="help-grid">
+                <div class="help-item">
+                    <h4><i class="fas fa-user-circle"></i> Change Profile Image</h4>
+                    <p>Add new image to images/ folder, then update the src attribute in index.html</p>
+                </div>
+                <div class="help-item">
+                    <h4><i class="fas fa-plus-circle"></i> Add New Project</h4>
+                    <p>Use the Content Generator to create HTML, then paste it into your projects section</p>
+                </div>
+                <div class="help-item">
+                    <h4><i class="fas fa-briefcase"></i> Update Experience</h4>
+                    <p>Generate new timeline items and add them to your experience section</p>
+                </div>
+                <div class="help-item">
+                    <h4><i class="fas fa-rocket"></i> Deploy Portfolio</h4>
+                    <p>Follow the deployment guide for GitHub Pages, Netlify, or other platforms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check service status
+        function checkStatus() {
+            // Check if portfolio is accessible
+            fetch('index.html')
+                .then(response => {
+                    document.getElementById('siteStatus').classList.remove('offline');
+                    document.getElementById('portfolioStatus').classList.remove('offline');
+                })
+                .catch(() => {
+                    document.getElementById('siteStatus').classList.add('offline');
+                    document.getElementById('portfolioStatus').classList.add('offline');
+                });
+
+            // Check if admin panel is accessible
+            fetch('admin.html')
+                .then(response => {
+                    document.getElementById('adminStatus').classList.remove('offline');
+                })
+                .catch(() => {
+                    document.getElementById('adminStatus').classList.add('offline');
+                });
+        }
+
+        function openGuide() {
+            const guides = [
+                { name: 'Portfolio Update Guide', file: 'PORTFOLIO-UPDATE-GUIDE.md' },
+                { name: 'Deployment Guide', file: 'DEPLOYMENT-GUIDE.md' }
+            ];
+
+            const guideList = guides.map(guide =>
+                `• <a href="${guide.file}" target="_blank">${guide.name}</a>`
+            ).join('<br>');
+
+            const popup = window.open('', 'guides', 'width=600,height=400');
+            popup.document.write(`
+                <html>
+                    <head>
+                        <title>Portfolio Guides</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 2rem; line-height: 1.6; }
+                            h2 { color: #667eea; }
+                            a { color: #667eea; text-decoration: none; }
+                            a:hover { text-decoration: underline; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>📚 Portfolio Documentation</h2>
+                        <p>Access your complete portfolio management guides:</p>
+                        <div style="margin: 2rem 0; font-size: 1.1rem;">
+                            ${guideList}
+                        </div>
+                        <p><em>Note: These guides contain detailed instructions for updating, managing, and deploying your portfolio.</em></p>
+                    </body>
+                </html>
+            `);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            checkStatus();
+
+            // Update stats periodically
+            setInterval(checkStatus, 30000);
+        });
+    </script>
+</body>
+
+</html>
