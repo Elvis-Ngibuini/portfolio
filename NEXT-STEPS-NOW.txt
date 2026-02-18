@@ -1,0 +1,104 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    ✅ GIT CONFIGURED - READY FOR GITHUB!                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+COMPLETED:
+  ✅ Git configured with your email and name
+  ✅ Repository initialized
+  ✅ All files committed (91 files)
+  ✅ Admin password secured
+  ✅ Credentials file protected (.gitignore)
+
+
+NOW DO THIS:
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 1: CREATE GITHUB REPOSITORY (2 minutes)                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  1. Open your browser
+  
+  2. Go to: https://github.com/new
+  
+  3. Fill in:
+     Repository name: portfolio
+     Description: My professional portfolio website
+     Public repository (select this)
+     ❌ DO NOT check "Initialize with README"
+     ❌ DO NOT add .gitignore
+     ❌ DO NOT add license
+  
+  4. Click "Create repository"
+  
+  5. You'll see a page with commands - IGNORE THEM
+     (We'll use our own commands below)
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 2: PUSH YOUR CODE TO GITHUB (1 minute)                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Copy and paste these commands ONE BY ONE in your terminal:
+
+  git remote add origin https://github.com/EluisNgibuni/portfolio.git
+
+  git push -u origin main
+
+  (You may be asked to login to GitHub - follow the prompts)
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 3: VERIFY ON GITHUB (30 seconds)                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  1. Go to: https://github.com/EluisNgibuni/portfolio
+  
+  2. You should see all your files
+  
+  3. Check that MY-CREDENTIALS.txt is NOT visible
+     (It should be hidden by .gitignore)
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 4: CONTINUE WITH DEPLOYMENT                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Open: YOUR-DEPLOYMENT-STEPS.txt
+  
+  Continue from STEP 1 (Gmail App Password)
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    COMMANDS TO RUN NOW:                                      ║
+║                                                                              ║
+║  git remote add origin https://github.com/EluisNgibuni/portfolio.git        ║
+║  git push -u origin main                                                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+TROUBLESHOOTING:
+
+  If "git push" asks for authentication:
+    - GitHub will open a browser window
+    - Login to your GitHub account
+    - Authorize the connection
+    - Return to terminal
+
+  If you get "repository not found":
+    - Make sure you created the repository on GitHub first
+    - Check the repository name is exactly "portfolio"
+    - Verify the URL is correct
+
+  If you get "permission denied":
+    - You may need to set up SSH keys
+    - Or use GitHub Desktop instead
+    - Or use personal access token
+
+
+Created: February 18, 2026
