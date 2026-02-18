@@ -1,8 +1,6 @@
 // API Configuration
-// TODO: Update this URL after deploying backend (see BACKEND-DEPLOYMENT.md)
-// For local development: http://localhost:3000/api
-// For production: https://your-backend-url.com/api
-const API_BASE_URL = 'http://localhost:3000/api';
+// Production backend URL
+const API_BASE_URL = 'https://portfolio-6u3n.onrender.com/api';
 
 // API Helper Functions
 class PortfolioAPI {
