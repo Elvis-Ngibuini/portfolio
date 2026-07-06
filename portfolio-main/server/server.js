@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const { authenticateJWT } = require('./middleware/auth');
+const logger = require('./config/logger');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -33,6 +34,19 @@ const cacheMiddleware = (key, ttl = CACHE_TTL) => {
         };
         next();
     };
+};
+
+// Security logging with Winston
+const logSecurityEvent = (event, req, details = {}) => {
+    const logEntry = {
+        event,
+        ip: req?.ip || req?.connection?.remoteAddress,
+        userAgent: req?.get?.('User-Agent'),
+        path: req?.path,
+        method: req?.method,
+        ...details
+    };
+    logger.info('security_event', logEntry);
 };
 
 // MongoDB Connection
@@ -497,7 +511,12 @@ app.use('*', (req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // Error handler
 app.use((err, req, res, next) => {
-    logSecurityEvent('ERROR', req, { error: err.message, stack: err.stack });
+    logger.error('server_error', { 
+        error: err.message, 
+        stack: err.stack,
+        path: req?.path,
+        method: req?.method
+    });
     res.status(500).json({ 
         success: false, 
         error: 'Something went wrong!', 
@@ -506,7 +525,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    logSecurityEvent('SERVER_START', { port: PORT, env: process.env.NODE_ENV });
+    logger.info('server_start', { port: PORT, env: process.env.NODE_ENV });
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Admin API: http://localhost:${PORT}/api`);
     console.log(`📂 Uploads: http://localhost:${PORT}/uploads`);
