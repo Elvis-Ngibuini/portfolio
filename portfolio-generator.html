@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Content Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .generator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .generator-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .generator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .generator-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tech-tag {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background: #5a67d8;
+        }
+
+        .tech-tag.selected {
+            background: #4c51bf;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .output-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .output-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            margin-top: 1rem;
+            background: #48bb78;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+        }
+
+        .preview-section {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .skill-level-slider {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .level-display {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 0.5rem;
+        }
+
+        .common-techs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tech-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .tech-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .generator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-magic"></i> Portfolio Content Generator</h1>
+            <p>Generate HTML code for your portfolio sections with ease</p>
+        </div>
+
+        <div class="generator-grid">
+            <!-- Project Generator -->
+            <div class="generator-card">
+                <h3><i class="fas fa-project-diagram"></i> Project Generator</h3>
+
+                <div class="form-group">
+                    <label for="projectTitle">Project Title</label>
+                    <input type="text" id="projectTitle" placeholder="My Awesome Project">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription"
+                        placeholder="Brief description of your project and its impact..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="projectImage">Image Filename</label>
+                    <input type="text" id="projectImage" placeholder="project-screenshot.png">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectCategory">Category</label>
+                    <select id="projectCategory">
+                        <option value="web">Web Development</option>
+                        <option value="dsa">Data Structures & Algorithms</option>
+                        <option value="cloud">Cloud Computing</option>
+                        <option value="mobile">Mobile Development</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Technologies Used</label>
+                    <div class="common-techs" id="projectTechs">
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">React</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">Node.js</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">MongoDB</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">Express</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">JavaScript</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">Python</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">HTML/CSS</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">Tailwind</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">AWS</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'projectSelectedTechs')">Docker</button>
+                    </div>
+                    <input type="hidden" id="projectSelectedTechs" value="">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectGithub">GitHub URL</label>
+                    <input type="url" id="projectGithub" placeholder="https://github.com/username/project">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectLive">Live Demo URL</label>
+                    <input type="url" id="projectLive" placeholder="https://your-project.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectDate">Date</label>
+                    <input type="text" id="projectDate" placeholder="Jan 2026">
+                </div>
+
+                <button class="btn" onclick="generateProject()">
+                    <i class="fas fa-code"></i> Generate Project HTML
+                </button>
+            </div>
+
+            <!-- Experience Generator -->
+            <div class="generator-card">
+                <h3><i class="fas fa-briefcase"></i> Experience Generator</h3>
+
+                <div class="form-group">
+                    <label for="jobTitle">Job Title</label>
+                    <input type="text" id="jobTitle" placeholder="Software Developer">
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company & Location</label>
+                    <input type="text" id="company" placeholder="Tech Company, City">
+                </div>
+
+                <div class="form-group">
+                    <label for="period">Period</label>
+                    <input type="text" id="period" placeholder="Jan 2025 - Present">
+                </div>
+
+                <div class="form-group">
+                    <label for="achievements">Achievements (one per line)</label>
+                    <textarea id="achievements"
+                        placeholder="Developed web applications improving efficiency by 25%&#10;Led team of 3 developers on key projects&#10;Implemented CI/CD pipeline reducing deployment time"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Technologies Used</label>
+                    <div class="common-techs" id="expTechs">
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">React</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">Node.js</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">Python</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">AWS</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">Docker</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">MongoDB</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">PostgreSQL</button>
+                        <button type="button" class="tech-btn"
+                            onclick="toggleTech(this, 'expSelectedTechs')">Git</button>
+                    </div>
+                    <input type="hidden" id="expSelectedTechs" value="">
+                </div>
+
+                <button class="btn" onclick="generateExperience()">
+                    <i class="fas fa-code"></i> Generate Experience HTML
+                </button>
+            </div>
+
+            <!-- Skill Generator -->
+            <div class="generator-card">
+                <h3><i class="fas fa-cogs"></i> Skill Generator</h3>
+
+                <div class="form-group">
+                    <label for="skillName">Skill Name</label>
+                    <input type="text" id="skillName" placeholder="JavaScript">
+                </div>
+
+                <div class="form-group">
+                    <label for="skillLevel">Proficiency Level: <span id="skillLevelDisplay">85</span>%</label>
+                    <input type="range" id="skillLevel" class="skill-level-slider" min="0" max="100" value="85"
+                        oninput="updateSkillLevel(this.value)">
+                </div>
+
+                <div class="form-group">
+                    <label for="skillIcon">Font Awesome Icon Class</label>
+                    <input type="text" id="skillIcon" placeholder="fab fa-js" value="fab fa-js">
+                    <small>Find icons at <a href="https://fontawesome.com/icons"
+                            target="_blank">fontawesome.com/icons</a></small>
+                </div>
+
+                <button class="btn" onclick="generateSkill()">
+                    <i class="fas fa-code"></i> Generate Skill HTML
+                </button>
+            </div>
+
+            <!-- Challenge/Certification Generator -->
+            <div class="generator-card">
+                <h3><i class="fas fa-certificate"></i> Challenge Generator</h3>
+
+                <div class="form-group">
+                    <label for="challengeTitle">Challenge/Certification Title</label>
+                    <input type="text" id="challengeTitle" placeholder="AWS Cloud Practitioner">
+                </div>
+
+                <div class="form-group">
+                    <label for="challengeCategory">Platform/Provider</label>
+                    <input type="text" id="challengeCategory" placeholder="AWS, TryHackMe, Coursera">
+                </div>
+
+                <div class="form-group">
+                    <label for="challengeDescription">Description</label>
+                    <textarea id="challengeDescription"
+                        placeholder="What this challenge/certification covers..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="challengeImage">Certificate Image</label>
+                    <input type="text" id="challengeImage" placeholder="certificate-aws.png">
+                </div>
+
+                <div class="form-group">
+                    <label for="challengeLearnings">Key Learnings (one per line)</label>
+                    <textarea id="challengeLearnings"
+                        placeholder="Cloud computing fundamentals&#10;AWS services and architecture&#10;Security best practices"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="challengeTools">Tools Used (comma separated)</label>
+                    <input type="text" id="challengeTools" placeholder="AWS Console, CLI, CloudFormation">
+                </div>
+
+                <button class="btn" onclick="generateChallenge()">
+                    <i class="fas fa-code"></i> Generate Challenge HTML
+                </button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section" id="outputSection" style="display: none;">
+            <h3><i class="fas fa-code"></i> Generated HTML Code</h3>
+            <div class="code-output" id="generatedCode"></div>
+            <button class="btn copy-btn" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i> Copy to Clipboard
+            </button>
+            <div class="preview-section">
+                <h4>Instructions:</h4>
+                <p>1. Copy the generated HTML code above</p>
+                <p>2. Open your <code>index.html</code> file</p>
+                <p>3. Find the appropriate section (projects, experience, skills, or challenges)</p>
+                <p>4. Paste the code in the right location</p>
+                <p>5. Save and test your changes</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTechs = {
+            projectSelectedTechs: [],
+            expSelectedTechs: []
+        };
+
+        function toggleTech(button, targetId) {
+            button.classList.toggle('selected');
+            const tech = button.textContent;
+
+            if (!selectedTechs[targetId]) {
+                selectedTechs[targetId] = [];
+            }
+
+            if (button.classList.contains('selected')) {
+                if (!selectedTechs[targetId].includes(tech)) {
+                    selectedTechs[targetId].push(tech);
+                }
+            } else {
+                selectedTechs[targetId] = selectedTechs[targetId].filter(t => t !== tech);
+            }
+
+            document.getElementById(targetId).value = selectedTechs[targetId].join(',');
+        }
+
+        function updateSkillLevel(value) {
+            document.getElementById('skillLevelDisplay').textContent = value;
+        }
+
+        function generateProject() {
+            const title = document.getElementById('projectTitle').value;
+            const description = document.getElementById('projectDescription').value;
+            const image = document.getElementById('projectImage').value;
+            const category = document.getElementById('projectCategory').value;
+            const techs = selectedTechs.projectSelectedTechs || [];
+            const github = document.getElementById('projectGithub').value;
+            const live = document.getElementById('projectLive').value;
+            const date = document.getElementById('projectDate').value;
+
+            if (!title || !description) {
+                alert('Please fill in at least the title and description');
+                return;
+            }
+
+            const techTags = techs.map(tech => `                            <span><i class="fab fa-${tech.toLowerCase()}"></i> ${tech}</span>`).join('\n');
+
+            const html = `                <!-- ${title} -->
+                <div class="project-card" data-category="${category}">
+                    <div class="project-image">
+                        <img src="images/${image}" alt="${title}" loading="lazy">
+                        <div class="project-overlay">
+                            <div class="project-stats">
+                                <span><i class="fas fa-star"></i> Featured Project</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>${title}</h3>
+                            <div class="project-actions">
+                                <a href="${github}" class="icon-link" aria-label="View on GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="${live}" class="icon-link" aria-label="Live Demo">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <p>${description}</p>
+                        <div class="tech-stack">
+${techTags}
+                        </div>
+                        <div class="project-footer">
+                            <button class="btn btn-outline btn-sm" data-project="${title.toLowerCase().replace(/\s+/g, '-')}">
+                                <i class="fas fa-info-circle"></i> View Details
+                            </button>
+                            <span class="project-date">${date}</span>
+                        </div>
+                    </div>
+                </div>`;
+
+            showOutput(html);
+        }
+
+        function generateExperience() {
+            const title = document.getElementById('jobTitle').value;
+            const company = document.getElementById('company').value;
+            const period = document.getElementById('period').value;
+            const achievements = document.getElementById('achievements').value.split('\n').filter(a => a.trim());
+            const techs = selectedTechs.expSelectedTechs || [];
+
+            if (!title || !company || !period) {
+                alert('Please fill in the job title, company, and period');
+                return;
+            }
+
+            const achievementsList = achievements.map(achievement => `                            <li>${achievement.trim()}</li>`).join('\n');
+            const techTags = techs.map(tech => `                            <span>${tech}</span>`).join('\n');
+
+            const html = `                <!-- ${title} -->
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>${title}</h3>
+                            <span class="timeline-period">${period}</span>
+                        </div>
+                        <h4>${company}</h4>
+                        <ul class="timeline-details">
+${achievementsList}
+                        </ul>
+                        <div class="tech-tags">
+${techTags}
+                        </div>
+                    </div>
+                </div>`;
+
+            showOutput(html);
+        }
+
+        function generateSkill() {
+            const name = document.getElementById('skillName').value;
+            const level = document.getElementById('skillLevel').value;
+            const icon = document.getElementById('skillIcon').value;
+
+            if (!name) {
+                alert('Please enter a skill name');
+                return;
+            }
+
+            const html = `                        <div class="skill-item" data-level="${level}">
+                            <span class="skill-name">${name}</span>
+                            <div class="skill-bar">
+                                <div class="skill-level"></div>
+                            </div>
+                        </div>`;
+
+            showOutput(html);
+        }
+
+        function generateChallenge() {
+            const title = document.getElementById('challengeTitle').value;
+            const category = document.getElementById('challengeCategory').value;
+            const description = document.getElementById('challengeDescription').value;
+            const image = document.getElementById('challengeImage').value;
+            const learnings = document.getElementById('challengeLearnings').value.split('\n').filter(l => l.trim());
+            const tools = document.getElementById('challengeTools').value.split(',').map(t => t.trim()).filter(t => t);
+
+            if (!title || !category || !description) {
+                alert('Please fill in the title, category, and description');
+                return;
+            }
+
+            const learningsList = learnings.map(learning => `                            <li>${learning.trim()}</li>`).join('\n');
+            const toolTags = tools.map(tool => `                            <span class="tool-tag">${tool}</span>`).join('\n');
+
+            const html = `                <!-- ${title} -->
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <div class="challenge-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="challenge-title">
+                            <h3>${title}</h3>
+                            <span class="challenge-category">${category}</span>
+                        </div>
+                    </div>
+                    <div class="challenge-content">
+                        <h4>Problem Statement</h4>
+                        <p>${description}</p>
+
+                        <h4>Key Learnings</h4>
+                        <ul class="challenge-details">
+${learningsList}
+                        </ul>
+
+                        <div class="challenge-image">
+                            <img src="images/${image}" alt="${title} Completion" loading="lazy">
+                        </div>
+
+                        <div class="challenge-tools">
+                            <span><i class="fas fa-tools"></i> Tools:</span>
+${toolTags}
+                        </div>
+                    </div>
+                </div>`;
+
+            showOutput(html);
+        }
+
+        function showOutput(html) {
+            document.getElementById('generatedCode').textContent = html;
+            document.getElementById('outputSection').style.display = 'block';
+            document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyToClipboard() {
+            const code = document.getElementById('generatedCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = '#48bb78';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

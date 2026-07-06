@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Backup & Version Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            min-height: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .backup-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .backup-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .backup-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .backup-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .backup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .backup-item {
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .backup-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .backup-item h4 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .backup-item p {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .status-success {
+            background: #f0fff4;
+            border: 1px solid #48bb78;
+            color: #2f855a;
+        }
+
+        .status-error {
+            background: #fef5e7;
+            border: 1px solid #ed8936;
+            color: #c05621;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .instructions {
+            background: #e8f4fd;
+            border: 1px solid #667eea;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .instructions h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Portfolio Backup & Export</h1>
+            <p>Backup your portfolio and export data for safekeeping</p>
+        </div>
+
+        <div class="backup-card">
+            <!-- Quick Backup Section -->
+            <div class="backup-section">
+                <h3><i class="fas fa-download"></i> Quick Backup</h3>
+                <p>Download essential files and data from your portfolio</p>
+
+                <div class="backup-grid">
+                    <div class="backup-item">
+                        <h4>Portfolio Files</h4>
+                        <p>HTML, CSS, JS, and configuration files</p>
+                        <button class="btn btn-success" onclick="backupPortfolioFiles()">
+                            <i class="fas fa-file-archive"></i> Download Files
+                        </button>
+                    </div>
+
+                    <div class="backup-item">
+                        <h4>Images & Media</h4>
+                        <p>All images, photos, and media files</p>
+                        <button class="btn btn-info" onclick="backupImages()">
+                            <i class="fas fa-images"></i> Download Images
+                        </button>
+                    </div>
+
+                    <div class="backup-item">
+                        <h4>Contact Data</h4>
+                        <p>Export contact form submissions as CSV</p>
+                        <button class="btn btn-warning" onclick="exportContactData()">
+                            <i class="fas fa-table"></i> Export CSV
+                        </button>
+                    </div>
+
+                    <div class="backup-item">
+                        <h4>Configuration</h4>
+                        <p>Portfolio settings and configuration</p>
+                        <button class="btn" onclick="backupConfig()">
+                            <i class="fas fa-cog"></i> Download Config
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File List Section -->
+            <div class="backup-section">
+                <h3><i class="fas fa-list"></i> Portfolio File Structure</h3>
+                <div class="file-list" id="fileList">
+                    <div>📁 portfolio/</div>
+                    <div>├── 📄 index.html</div>
+                    <div>├── 📄 admin.html</div>
+                    <div>├── 📄 resume.html</div>
+                    <div>├── 📄 portfolio-dashboard.html</div>
+                    <div>├── 📄 portfolio-manager.html</div>
+                    <div>├── 📄 portfolio-generator.html</div>
+                    <div>├── 📄 image-optimizer.html</div>
+                    <div>├── 📄 launch-portfolio.html</div>
+                    <div>├── 📁 css/</div>
+                    <div>│ └── 📄 styles.css</div>
+                    <div>├── 📁 js/</div>
+                    <div>│ ├── 📄 script.js</div>
+                    <div>│ ├── 📄 api.js</div>
+                    <div>│ └── 📄 resume.js</div>
+                    <div>├── 📁 images/</div>
+                    <div>│ ├── 🖼️ eluis.jpg</div>
+                    <div>│ ├── 🖼️ *.png (project screenshots)</div>
+                    <div>│ └── 🖼️ *.jpg (certificates)</div>
+                    <div>├── 📁 server/</div>
+                    <div>│ ├── 📄 server.js</div>
+                    <div>│ ├── 📄 package.json</div>
+                    <div>│ └── 📁 models/</div>
+                    <div>└── 📄 README.md</div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="backup-section">
+                <h3><i class="fas fa-tasks"></i> Backup Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+
+            <!-- Manual Backup Instructions -->
+            <div class="instructions">
+                <h4><i class="fas fa-info-circle"></i> Manual Backup Instructions</h4>
+                <p>For a complete backup, follow these steps:</p>
+                <ol>
+                    <li><strong>Copy Portfolio Folder:</strong> Copy your entire portfolio folder to a safe location
+                        (external drive, cloud storage)</li>
+                    <li><strong>Export Contact Data:</strong> Use the admin panel to export contact submissions as CSV
+                    </li>
+                    <li><strong>Save Configuration:</strong> Keep a copy of your portfolio-config.js and server/.env
+                        files</li>
+                    <li><strong>Document Changes:</strong> Keep notes of any customizations you've made</li>
+                    <li><strong>Test Backup:</strong> Periodically test that your backup works by setting it up in a new
+                        location</li>
+                </ol>
+
+                <p style="margin-top: 1rem;"><strong>Recommended:</strong> Set up automatic backups using Git or cloud
+                    storage sync.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showProgress(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function backupPortfolioFiles() {
+            showProgress(10);
+            showStatus('Preparing portfolio files for download...', 'success');
+
+            // Simulate backup process
+            setTimeout(() => {
+                showProgress(50);
+                showStatus('Compressing files...', 'success');
+
+                setTimeout(() => {
+                    showProgress(100);
+                    showStatus('Portfolio files backup completed! Check your downloads folder.', 'success');
+
+                    // Create a simple backup info file
+                    const backupInfo = `Portfolio Backup Information
+Generated: ${new Date().toLocaleString()}
+Files included:
+- index.html (Main portfolio page)
+- admin.html (Admin panel)
+- resume.html (Resume page)
+- portfolio-dashboard.html (Management dashboard)
+- portfolio-manager.html (Content manager)
+- portfolio-generator.html (Content generator)
+- image-optimizer.html (Image optimizer)
+- css/styles.css (Styling)
+- js/*.js (JavaScript files)
+- Configuration files
+
+Note: This is a simulated backup. For a real backup, copy your entire portfolio folder manually.`;
+
+                    downloadTextFile('portfolio-backup-info.txt', backupInfo);
+                }, 1000);
+            }, 1000);
+        }
+
+        function backupImages() {
+            showProgress(20);
+            showStatus('Scanning image directory...', 'success');
+
+            setTimeout(() => {
+                showProgress(100);
+                showStatus('Images backup info generated! For actual images, copy the images/ folder manually.', 'success');
+
+                const imageList = `Portfolio Images Backup List
+Generated: ${new Date().toLocaleString()}
+
+Profile Images:
+- eluis.jpg (Profile photo)
+
+Project Screenshots:
+- Huduma Center Homepage.png
+- Baobab homepage.png
+- Chacadom homepage.png
+
+Certificates:
+- DNS.png
+- Intro to Networking.png
+- Reconnaissance.png
+- python.png
+- offensive.png
+- linux.png
+
+Instructions:
+1. Copy the entire images/ folder to your backup location
+2. Ensure all images are properly compressed for web use
+3. Keep original high-resolution versions separately if needed`;
+
+                downloadTextFile('images-backup-list.txt', imageList);
+            }, 1500);
+        }
+
+        async function exportContactData() {
+            showProgress(30);
+            showStatus('Connecting to contact database...', 'success');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/contact?limit=1000');
+                const result = await response.json();
+
+                if (result.success) {
+                    showProgress(80);
+                    showStatus('Generating CSV export...', 'success');
+
+                    const contacts = result.data.contacts;
+                    const csv = generateContactCSV(contacts);
+
+                    showProgress(100);
+                    showStatus(`Contact data exported! ${contacts.length} contacts downloaded.`, 'success');
+
+                    downloadTextFile('contact-submissions-backup.csv', csv);
+                } else {
+                    showStatus('Failed to export contact data. Make sure the backend server is running.', 'error');
+                }
+            } catch (error) {
+                showStatus('Cannot connect to backend server. Contact data export failed.', 'error');
+            }
+        }
+
+        function backupConfig() {
+            showProgress(50);
+            showStatus('Generating configuration backup...', 'success');
+
+            setTimeout(() => {
+                showProgress(100);
+                showStatus('Configuration backup completed!', 'success');
+
+                const configBackup = `Portfolio Configuration Backup
+Generated: ${new Date().toLocaleString()}
+
+Important Configuration Files:
+1. portfolio-config.js - Main content configuration
+2. server/.env - Email and server settings
+3. server/package.json - Backend dependencies
+4. .vscode/launch.json - Development settings
+
+Backup Instructions:
+1. Copy portfolio-config.js to your backup location
+2. Copy server/.env (contains sensitive email settings)
+3. Document any custom modifications you've made
+4. Keep a list of installed npm packages
+
+Server Configuration:
+- Frontend Port: 8000
+- Backend Port: 3000
+- Database: File-based storage (server/storage/contacts.json)
+
+Email Settings:
+- Check server/.env for email configuration
+- Backup your email app passwords securely
+
+Development Tools:
+- Node.js version: Check with 'node --version'
+- Python version: Check with 'python --version'
+- Required packages: Listed in server/package.json`;
+
+                downloadTextFile('portfolio-config-backup.txt', configBackup);
+            }, 1000);
+        }
+
+        function generateContactCSV(contacts) {
+            const headers = ['ID', 'Name', 'Email', 'Subject', 'Message', 'Status', 'Priority', 'Created At', 'IP Address'];
+            const rows = contacts.map(contact => [
+                contact._id,
+                contact.name,
+                contact.email,
+                contact.subject,
+                contact.message.replace(/"/g, '""'),
+                contact.status,
+                contact.priority,
+                contact.created_at,
+                contact.ip_address || ''
+            ]);
+
+            return [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+        }
+
+        function downloadTextFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>

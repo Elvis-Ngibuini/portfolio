@@ -1,9 +1,57 @@
-node_modules/
+# Environment variables
 .env
-.DS_Store
-*.log
-uploads/
-server/node_modules/
+.env.local
+.env.production
 server/.env
-*.tmp
+server/.env.local
+server/.env.production
+
+# Credentials and sensitive files
+MY-CREDENTIALS.txt
+*credentials*
+*password*
+
+# Node modules
+node_modules/
+server/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
 *.swp
+*.swo
+
+# Build files
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+server/storage/*.json
+!server/storage/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.tmp
+
+# Images (optional - uncomment if needed)
+# uploads/
+# portfolio-main/images/
+
+# Sensitive data
+*.pem
+*.key
+*.cert

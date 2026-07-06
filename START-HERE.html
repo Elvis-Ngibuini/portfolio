@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Start Here</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .quick-start {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .quick-start h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card p {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .warning-box h3 {
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+
+        .success-box {
+            background: rgba(72, 187, 120, 0.2);
+            border: 2px solid #48bb78;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .success-box h3 {
+            color: #48bb78;
+            margin-bottom: 1rem;
+        }
+
+        .code-box {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1><i class="fas fa-rocket"></i> Welcome to Your Portfolio Management System</h1>
+            <p>Everything you need to manage, update, and deploy your professional portfolio</p>
+            <div style="margin-top: 2rem;">
+                <a href="http://localhost:8000/launch-portfolio.html" class="btn" style="margin: 0.5rem;">
+                    <i class="fas fa-play"></i> Launch Portfolio System
+                </a>
+                <a href="http://localhost:8000" class="btn btn-secondary" style="margin: 0.5rem;">
+                    <i class="fas fa-globe"></i> View Live Portfolio
+                </a>
+            </div>
+        </div>
+
+        <div class="quick-start">
+            <h2><i class="fas fa-bolt"></i> Quick Start Guide</h2>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Start Servers</h3>
+                    <p>Run <code>start-dev.bat</code> or start servers manually</p>
+                    <div class="code-box">start-dev.bat</div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Open Launcher</h3>
+                    <p>Access the portfolio launcher to check server status</p>
+                    <div class="code-box">http://localhost:8000/launch-portfolio.html</div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Choose Your Tool</h3>
+                    <p>Select from dashboard, admin panel, or content manager</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Start Managing</h3>
+                    <p>Update content, manage contacts, or optimize images</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3><i class="fas fa-exclamation-triangle"></i> Important: Avoid CORS Errors</h3>
+                <p><strong>Always access your portfolio through the HTTP server:</strong></p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>✅ Correct: <code>http://localhost:8000/admin.html</code></li>
+                    <li>❌ Wrong: Opening <code>admin.html</code> directly from file explorer</li>
+                </ul>
+                <p style="margin-top: 1rem;">
+                    <strong>Why?</strong> Opening files directly causes CORS errors that prevent the admin panel from
+                    connecting to the backend.
+                </p>
+            </div>
+
+            <div class="success-box">
+                <h3><i class="fas fa-check-circle"></i> Your Complete Toolkit</h3>
+                <p>You now have access to professional-grade portfolio management tools:</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>📊 Dashboard - Central command center</li>
+                    <li>🎨 Content Manager - Visual update guides</li>
+                    <li>⚡ Content Generator - Automatic HTML generation</li>
+                    <li>🖼️ Image Optimizer - Compress and resize images</li>
+                    <li>⚙️ Admin Panel - Manage contact submissions</li>
+                    <li>📚 Complete Documentation - Step-by-step guides</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; margin: 3rem 0 2rem; font-size: 2rem;">
+            <i class="fas fa-tools"></i> Your Management Tools
+        </h2>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h3>Portfolio Dashboard</h3>
+                <p>Central hub for all your portfolio management tools with live status monitoring and quick access.</p>
+                <a href="http://localhost:8000/portfolio-dashboard.html" class="btn">Open Dashboard</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3>Portfolio Manager</h3>
+                <p>Visual step-by-step guides for updating your portfolio content without coding.</p>
+                <a href="http://localhost:8000/portfolio-manager.html" class="btn">Open Manager</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h3>Content Generator</h3>
+                <p>Generate HTML code for projects, experience, skills, and certifications automatically.</p>
+                <a href="http://localhost:8000/portfolio-generator.html" class="btn">Generate Content</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h3>Image Optimizer</h3>
+                <p>Compress and optimize images for better portfolio performance and faster loading.</p>
+                <a href="http://localhost:8000/image-optimizer.html" class="btn">Optimize Images</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h3>Admin Panel</h3>
+                <p>Manage contact form submissions with bulk actions, CSV export, and contact notes.</p>
+                <a href="http://localhost:8000/admin.html" class="btn">Open Admin</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3>Documentation</h3>
+                <p>Complete guides for updating, managing, and deploying your portfolio.</p>
+                <button class="btn" onclick="showDocs()">View Guides</button>
+            </div>
+        </div>
+
+        <div class="quick-start" style="margin-top: 3rem;">
+            <h2><i class="fas fa-question-circle"></i> Common Tasks</h2>
+
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">
+                        <i class="fas fa-user-circle"></i> Change Profile Image
+                    </h4>
+                    <p style="font-size: 0.9rem;">Add image to images/ folder, then update src in index.html</p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">
+                        <i class="fas fa-plus-circle"></i> Add New Project
+                    </h4>
+                    <p style="font-size: 0.9rem;">Use Content Generator to create HTML, then paste into index.html</p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">
+                        <i class="fas fa-briefcase"></i> Update Experience
+                    </h4>
+                    <p style="font-size: 0.9rem;">Generate timeline items and add to experience section</p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">
+                        <i class="fas fa-envelope"></i> Manage Contacts
+                    </h4>
+                    <p style="font-size: 0.9rem;">Use Admin Panel to view and respond to contact submissions</p>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="text-align: center; margin: 3rem 0; padding: 2rem; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+            <h3 style="margin-bottom: 1rem;">🎉 Ready to Get Started?</h3>
+            <p style="margin-bottom: 2rem; opacity: 0.9;">Launch your portfolio management system now!</p>
+            <a href="http://localhost:8000/launch-portfolio.html" class="btn"
+                style="font-size: 1.1rem; padding: 1rem 2rem;">
+                <i class="fas fa-rocket"></i> Launch Portfolio System
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function showDocs() {
+            const docs = [
+                { name: 'Portfolio Update Guide', file: 'PORTFOLIO-UPDATE-GUIDE.md' },
+                { name: 'Deployment Guide', file: 'DEPLOYMENT-GUIDE.md' },
+                { name: 'How to Access Admin', file: 'HOW-TO-ACCESS-ADMIN.md' }
+            ];
+
+            const docsList = docs.map(doc =>
+                `• <a href="${doc.file}" target="_blank" style="color: #667eea;">${doc.name}</a>`
+            ).join('<br>');
+
+            const popup = window.open('', 'docs', 'width=600,height=500');
+            popup.document.write(`
+                <html>
+                    <head>
+                        <title>Portfolio Documentation</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                padding: 2rem; 
+                                line-height: 1.8;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                            }
+                            .container {
+                                background: rgba(255, 255, 255, 0.95);
+                                color: #333;
+                                padding: 2rem;
+                                border-radius: 15px;
+                            }
+                            h2 { color: #667eea; margin-bottom: 1.5rem; }
+                            a { color: #667eea; text-decoration: none; font-weight: 600; }
+                            a:hover { text-decoration: underline; }
+                            .doc-list { font-size: 1.1rem; margin: 2rem 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>📚 Portfolio Documentation</h2>
+                            <p>Access your complete portfolio management guides:</p>
+                            <div class="doc-list">
+                                ${docsList}
+                            </div>
+                            <p style="margin-top: 2rem; font-style: italic; color: #666;">
+                                These guides contain detailed instructions for updating, managing, and deploying your portfolio.
+                            </p>
+                        </div>
+                    </body>
+                </html>
+            `);
+        }
+
+        // Check if servers are running
+        async function checkServers() {
+            try {
+                const response = await fetch('http://localhost:8000/index.html');
+                if (!response.ok) {
+                    showServerWarning();
+                }
+            } catch (error) {
+                showServerWarning();
+            }
+        }
+
+        function showServerWarning() {
+            const warning = document.createElement('div');
+            warning.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(245, 101, 101, 0.95); color: white; padding: 1rem 1.5rem; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000;';
+            warning.innerHTML = `
+                <strong>⚠️ Servers Not Running</strong><br>
+                <small>Please run start-dev.bat first</small>
+            `;
+            document.body.appendChild(warning);
+        }
+
+        // Check on load
+        setTimeout(checkServers, 1000);
+    </script>
+</body>
+
+</html>
