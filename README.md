@@ -37,13 +37,31 @@ Login at `portfolio-main/admin.html`:
 | GET | `/api/contact-info` | No | Contact information |
 | POST | `/api/auth/login` | No | Get JWT token |
 
-## 🛠️ Features
+## 🐳 Docker Deployment
 
-- **JWT Authentication** - Secure admin login with 8-hour token expiry
-- **In-memory Caching** - 5-minute TTL for API responses
-- **Bulk Endpoint** - Single request for all portfolio data
-- **Project Filtering** - Frontend filtering by category/featured
-- **Image Upload** - Multer-based file uploads
+```bash
+# Copy environment file
+copy .env.example .env
+# Edit .env with your secrets
+
+# Build and run
+docker compose up -d
+```
+
+Access:
+- Frontend: http://localhost (http) or https://localhost (with SSL)
+- Backend API: http://localhost/api/
+- Admin: http://localhost/admin
+
+## 🔒 Security Features
+
+- JWT authentication with 8-hour expiry
+- In-memory caching (5min TTL)
+- Security headers (CSP, HSTS, XSS protection)
+- Rate limiting (500 req/15min)
+- Input sanitization
+- File upload whitelist (jpg, png, gif, webp)
+- Structured security logging
 
 ## 🌐 GitHub
 

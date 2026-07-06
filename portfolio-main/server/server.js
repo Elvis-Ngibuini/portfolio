@@ -62,32 +62,84 @@ const writeJSON = (file, data) => {
     fs.writeFileSync(path.join(STORAGE_DIR, file), JSON.stringify(data, null, 2));
 };
 
+// Security logging middleware
+const logSecurityEvent = (event, req, details = {}) => {
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        event,
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+        method: req.method,
+        ...details
+    };
+    console.log(JSON.stringify(logEntry));
+};
+
+// Request sanitization
+const sanitizeInput = (req, res, next) => {
+    // Prevent prototype pollution
+    if (req.body) {
+        Object.keys(req.body).forEach(key => {
+            if (key.toLowerCase().includes('prototype')) delete req.body[key];
+        });
+    }
+    next();
+};
+
 // File upload configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+    filename: (req, file, cb) => {
+        const sanitized = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        cb(null, `${Date.now()}-${sanitized}`);
+    }
 });
-const upload = multer({ storage });
+
+// File type whitelist
+const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const upload = multer({ 
+    storage,
+    fileFilter: (req, file, cb) => {
+        if (allowedMimeTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type'), false);
+        }
+    },
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Middleware
+// Security headers middleware
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            imgSrc: ["'self'", "data:", "https:", "http://localhost:8000", "http://127.0.0.1:8000"],
-            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "http://localhost:8000", "http://127.0.0.1:8000"]
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'", "https:", "data:"],
+            objectSrc: ["'none'"],
+            frameSrc: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"]
         }
     },
-    hsts: { maxAge: 31536000, includeSubDomains: true }
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    xssFilter: true,
+    noSniff: true,
+    frameguard: { action: 'deny' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
+app.use('/api', sanitizeInput);
+
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL || 'https://yourdomain.com']
+    ? [process.env.FRONTEND_URL || 'https://yourdomain.com'].filter(Boolean)
     : [
         'http://localhost:8000',
         'http://127.0.0.1:8000',
@@ -99,14 +151,11 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (process.env.NODE_ENV !== 'production') {
-            if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-                return callback(null, true);
-            }
-        }
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+        if (!origin && process.env.NODE_ENV !== 'production') return callback(null, true);
+        if (allowedOrigins.includes(origin) || allowedOrigins.some(o => origin?.startsWith(o))) {
             callback(null, true);
         } else {
+            logSecurityEvent('CORS_BLOCKED', null, { origin });
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -117,6 +166,14 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Security audit logging middleware
+app.use('/api', (req, res, next) => {
+    if (req.method !== 'GET') {
+        logSecurityEvent('API_REQUEST', req);
+    }
+    next();
+});
 
 // Rate limiting
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: { success: false, message: 'Too many requests' } });
@@ -440,11 +497,16 @@ app.use('*', (req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!', ...(process.env.NODE_ENV === 'development' && { stack: err.stack }) });
+    logSecurityEvent('ERROR', req, { error: err.message, stack: err.stack });
+    res.status(500).json({ 
+        success: false, 
+        error: 'Something went wrong!', 
+        ...(process.env.NODE_ENV === 'development' && { details: err.message }) 
+    });
 });
 
 app.listen(PORT, () => {
+    logSecurityEvent('SERVER_START', { port: PORT, env: process.env.NODE_ENV });
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Admin API: http://localhost:${PORT}/api`);
     console.log(`📂 Uploads: http://localhost:${PORT}/uploads`);
