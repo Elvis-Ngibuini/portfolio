@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Launcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .launcher-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .launcher-container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .launcher-container p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .status-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f56565;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.online {
+            background: #48bb78;
+        }
+
+        .launch-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-color: #48bb78;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: rgba(245, 101, 101, 0.2);
+            border: 2px solid #f56565;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .launcher-container {
+                padding: 2rem;
+            }
+
+            .launcher-container h1 {
+                font-size: 2rem;
+            }
+
+            .launch-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="launcher-container">
+        <h1><i class="fas fa-rocket"></i> Portfolio Launcher</h1>
+        <p>Launch your portfolio and management tools with proper server access</p>
+
+        <div class="status-section">
+            <h3 style="margin-bottom: 1rem;">Server Status</h3>
+            <div class="status-item">
+                <div class="status-label">
+                    <i class="fas fa-server"></i>
+                    <span>Frontend Server (Port 8000)</span>
+                </div>
+                <div class="status-indicator" id="frontendStatus"></div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">
+                    <i class="fas fa-database"></i>
+                    <span>Backend API (Port 3000)</span>
+                </div>
+                <div class="status-indicator" id="backendStatus"></div>
+            </div>
+        </div>
+
+        <div class="launch-buttons">
+            <a href="http://localhost:8000" class="btn btn-primary" target="_blank" id="portfolioBtn">
+                <i class="fas fa-globe"></i> Launch Portfolio
+            </a>
+            <a href="http://localhost:8000/admin.html" class="btn" target="_blank" id="adminBtn">
+                <i class="fas fa-cog"></i> Admin Panel
+            </a>
+            <a href="http://localhost:8000/portfolio-dashboard.html" class="btn" target="_blank" id="dashboardBtn">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="http://localhost:8000/portfolio-manager.html" class="btn" target="_blank" id="managerBtn">
+                <i class="fas fa-edit"></i> Manager
+            </a>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <strong>⚠️ Servers Not Running</strong><br>
+            Please start your servers first using the instructions below.
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Start Your Servers</h3>
+            <ol>
+                <li><strong>Open Command Prompt/Terminal</strong> in your portfolio folder</li>
+                <li><strong>Start Frontend Server:</strong>
+                    <br><code>python -m http.server 8000</code>
+                </li>
+                <li><strong>Open Another Terminal</strong> and navigate to the server folder</li>
+                <li><strong>Start Backend Server:</strong>
+                    <br><code>cd server</code>
+                    <br><code>npm run dev</code>
+                </li>
+                <li><strong>Wait for both servers</strong> to show as online above</li>
+                <li><strong>Click the launch buttons</strong> to access your portfolio</li>
+            </ol>
+
+            <p style="margin-top: 1rem; font-style: italic;">
+                <strong>Alternative:</strong> Run <code>start-dev.bat</code> to start both servers automatically.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let frontendOnline = false;
+        let backendOnline = false;
+
+        async function checkServers() {
+            // Check frontend server
+            try {
+                const frontendResponse = await fetch('http://localhost:8000/index.html');
+                if (frontendResponse.ok) {
+                    frontendOnline = true;
+                    document.getElementById('frontendStatus').classList.add('online');
+                } else {
+                    throw new Error('Frontend not responding');
+                }
+            } catch (error) {
+                frontendOnline = false;
+                document.getElementById('frontendStatus').classList.remove('online');
+            }
+
+            // Check backend server
+            try {
+                const backendResponse = await fetch('http://localhost:3000/health');
+                if (backendResponse.ok) {
+                    backendOnline = true;
+                    document.getElementById('backendStatus').classList.add('online');
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                backendOnline = false;
+                document.getElementById('backendStatus').classList.remove('online');
+            }
+
+            // Update UI based on server status
+            updateUI();
+        }
+
+        function updateUI() {
+            const errorMessage = document.getElementById('errorMessage');
+            const buttons = document.querySelectorAll('.btn');
+
+            if (!frontendOnline || !backendOnline) {
+                errorMessage.style.display = 'block';
+                buttons.forEach(btn => {
+                    btn.style.opacity = '0.5';
+                    btn.style.pointerEvents = 'none';
+                });
+            } else {
+                errorMessage.style.display = 'none';
+                buttons.forEach(btn => {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                });
+            }
+        }
+
+        // Check servers on load and every 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            checkServers();
+            setInterval(checkServers, 5000);
+        });
+
+        // Add click handlers to show helpful messages
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                if (!frontendOnline || !backendOnline) {
+                    e.preventDefault();
+                    alert('Please start your servers first! See the instructions below.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

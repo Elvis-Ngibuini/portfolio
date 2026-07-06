@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eluis Ngibuini Thamaini - Resume</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #e0e0e0;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent: #00d4ff;
+            --accent-hover: #0099cc;
+            --border: #333;
+            --shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f8ff;
+            --bg-secondary: #e6f3ff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #666;
+            --accent: #007bff;
+            --accent-hover: #0056b3;
+            --border: #ccc;
+            --shadow: 0 4px 20px rgba(0, 123, 255, 0.1);
+            --primary-color: #007bff;
+            --text-color: #0a0a0a;
+            --light-gray: #f0f8ff;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        body {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+
+        .resume {
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            position: relative;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent);
+            animation: fadeInDown 1s ease;
+        }
+
+        .header h1 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 2.5rem;
+            letter-spacing: 0.05em;
+            background: linear-gradient(to right, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contact-item i {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .contact-link {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-link:hover {
+            color: var(--accent-hover);
+        }
+
+        .section {
+            margin: 2rem 0;
+            animation: fadeInUp 1s ease;
+        }
+
+        .section-title {
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: 'Fira Code', monospace;
+            letter-spacing: 0.05em;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--accent);
+            animation: drawLine 1s ease;
+        }
+
+        @keyframes drawLine {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 50px;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .objective {
+            font-style: italic;
+            color: var(--text-secondary);
+            text-align: justify;
+            background: rgba(0, 212, 255, 0.05);
+            padding: 1rem;
+            border-left: 3px solid var(--accent);
+            border-radius: 5px;
+        }
+
+        .strengths,
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .strength-item,
+        .skill-item {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .strength-item:hover,
+        .skill-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .experience-item,
+        .education-item {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experience-item::before,
+        .education-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .job-title,
+        .degree {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .company,
+        .university {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .date {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .skill-tag {
+            background: rgba(0, 212, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            transition: background 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        li {
+            margin-bottom: 0.3rem;
+            color: var(--text-secondary);
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                padding: 0;
+                background: white !important;
+            }
+
+            .resume {
+                box-shadow: none;
+                padding: 1rem;
+                border: none;
+                background: white !important;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            [data-theme="light"] {
+                --bg-primary: white;
+                --bg-secondary: white;
+                --text-primary: black;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .resume {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .strengths,
+            .skills {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Theme Toggle */
+        #theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #theme-toggle:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-print {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-print:hover {
+            background: var(--accent-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <button id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="resume">
+        <div class="header">
+            <h1>Eluis Ngibuini Thamaini</h1>
+            <p>Aspiring Full-Stack Developer</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:elvisngibuini@gmail.com" class="contact-link">elvisngibuini@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+254757953492" class="contact-link">+254 757 953 492</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <a href="https://github.com/EluisNgibuni" target="_blank" rel="noopener noreferrer"
+                        class="contact-link">github.com/EluisNgibuni</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-linkedin"></i>
+                    <a href="https://www.linkedin.com/in/eluis-ngibuni" target="_blank" rel="noopener noreferrer"
+                        class="contact-link">linkedin.com/in/eluis-ngibuni</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Career Objective</h2>
+            <p class="objective">Innovative Full-Stack Developer dedicated to engineering efficient, cloud-integrated
+                applications. With a Diploma in Computer Science and a portfolio featuring automated billing systems and
+                cross-platform mobile apps, I specialize in leveraging the Firebase-Flutter-React ecosystem to solve
+                real-world technical challenges. Focused on driving organizational growth through clean code, proactive
+                problem-solving, and a security-first mindset.</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Strengths</h2>
+            <div class="strengths">
+                <div class="strength-item">
+                    <h3>Fast Learner</h3>
+                    <p>Quickly adapt to new technologies and frameworks.</p>
+                </div>
+                <div class="strength-item">
+                    <h3>Creative Problem Solving</h3>
+                    <p>Utilize creative approaches in group projects.</p>
+                </div>
+                <div class="strength-item">
+                    <h3>Team Collaboration</h3>
+                    <p>Experience with clean, maintainable, and well-documented code.</p>
+                </div>
+                <div class="strength-item">
+                    <h3>Time Management</h3>
+                    <p>Balance academic/professional workload with personal projects effectively.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills">
+                <div class="skill-item">
+                    <h3>Programming Proficiency</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">PHP</span>
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">C++</span>
+                        <span class="skill-tag">JavaScript (ES6+)</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3>Web/App Development</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">HTML5</span>
+                        <span class="skill-tag">CSS3</span>
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Node.js</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3>Database & Version Control</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">SQL</span>
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">VS Code</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3>Graphics & Design</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">UI/UX</span>
+                        <span class="skill-tag">Graphics Tools</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <h3>2025 Essentials</h3>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Firebase/AWS Basics</span>
+                        <span class="skill-tag">DSA (Big O)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Certifications</h2>
+            <div class="experience-item">
+                <div class="job-title">Cybersecurity & Networking</div>
+                <div class="company">Cisco</div>
+                <div class="date">2024</div>
+            </div>
+            <div class="experience-item">
+                <div class="job-title">Graphics and Design</div>
+                <div class="company">Mahaniam College, Safari Park, Kenya</div>
+                <div class="date">August 2024</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-item">
+                <div class="degree">Diploma in Computer Science</div>
+                <div class="university">Zetech University, Ruiru, Kenya</div>
+                <div class="date">Graduated 2025</div>
+                <p>Key coursework: Algorithms, Databases, Software Engineering, Cisco modules. GPA: [Add if available]
+                </p>
+            </div>
+            <div class="education-item">
+                <div class="degree">Certificate in Graphics and Design</div>
+                <div class="university">Mahaniam College, Safari Park, Kenya</div>
+                <div class="date">August 2024</div>
+            </div>
+            <div class="education-item">
+                <div class="degree">High School Education</div>
+                <div class="university">Jomo Kenyatta Boys High School, Nakuru, Kenya</div>
+                <div class="date">Graduated 2022</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            <div class="experience-item">
+                <div class="job-title">Software Development Attaché</div>
+                <div class="company">Huduma Center GPO, Nairobi, Kenya</div>
+                <div class="date">June 2025 - September 2025</div>
+                <ul>
+                    <li>Built web apps/dashboards for public services using HTML/CSS/JS/Firebase</li>
+                    <li>Handled data management, authentication, and UX improvements</li>
+                    <li>Processed 100+ daily entries with 20% efficiency gain</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Projects</h2>
+            <div class="experience-item">
+                <div class="job-title">Birth Certificate Collection System (Huduma Dashboard)</div>
+                <ul>
+                    <li>Responsive dashboard for certificate processing with real-time data</li>
+                    <li>Built with HTML, CSS, JS, and Firebase; integrated auth and exports</li>
+                    <li>Streamlined operations for 100+ daily users</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <div class="job-title">Pathfinding Visualizer</div>
+                <ul>
+                    <li>Interactive tool for Dijkstra's algorithm visualization</li>
+                    <li>Vanilla JS with Canvas; optimized for O(n log n) complexity</li>
+                    <li>Educational demo with animations</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <div class="job-title">Advanced Todo App</div>
+                <ul>
+                    <li>Task manager with CRUD and auth using React and Node.js</li>
+                    <li>Persistent storage via LocalStorage; deployed on Netlify</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section no-print" style="text-align: center; margin-top: 3rem;">
+            <p>This resume was generated on <span id="current-date"></span></p>
+            <button onclick="window.print()" class="btn-print">Print or Save as PDF</button>
+            <a href="index.html"
+                style="display: block; margin-top: 1rem; color: var(--accent); text-decoration: none;">Back to
+                Portfolio</a>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Theme Toggle
+        const toggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        const icon = toggle.querySelector('i');
+        if (currentTheme === 'light') {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        toggle.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        });
+
+        // Auto-print when opened (optional)
+        // window.onload = function() {
+        //     setTimeout(function() {
+        //         window.print();
+        //     }, 1000);
+        // };
+    </script>
+</body>
+
+</html>

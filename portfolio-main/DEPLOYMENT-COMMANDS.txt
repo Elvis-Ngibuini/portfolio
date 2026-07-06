@@ -1,0 +1,197 @@
+================================================================================
+PORTFOLIO DEPLOYMENT - QUICK COMMAND REFERENCE
+================================================================================
+
+📋 PRE-DEPLOYMENT TEST
+================================================================================
+test-deployment.bat
+
+
+🚀 FRONTEND DEPLOYMENT (GitHub Pages)
+================================================================================
+
+Option 1: Automated (Recommended)
+----------------------------------
+deploy.bat
+
+
+Option 2: Manual
+----------------------------------
+# Initialize Git (first time only)
+git init
+git branch -M main
+
+# Add remote repository (first time only)
+git remote add origin https://github.com/EluisNgibuni/portfolio.git
+
+# Deploy
+git add .
+git commit -m "Deploy portfolio to production"
+git push -u origin main
+
+# Then enable GitHub Pages at:
+# https://github.com/EluisNgibuni/portfolio/settings/pages
+
+
+🔧 BACKEND DEPLOYMENT (Render.com)
+================================================================================
+
+1. Sign up: https://render.com
+2. New Web Service → Connect GitHub
+3. Configure:
+   - Root Directory: server
+   - Build: npm install
+   - Start: npm start
+4. Add environment variables (see below)
+5. Deploy
+
+
+📧 GMAIL APP PASSWORD
+================================================================================
+
+1. Go to: https://myaccount.google.com/apppasswords
+2. Enable 2-Step Verification first
+3. Create app password for "Mail"
+4. Copy 16-character password
+5. Use in EMAIL_PASS environment variable
+
+
+🔐 ENVIRONMENT VARIABLES FOR BACKEND
+================================================================================
+
+NODE_ENV=production
+FRONTEND_URL=https://eluisngibuni.github.io
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=elvisngibuini@gmail.com
+EMAIL_PASS=your-gmail-app-password-here
+EMAIL_FROM=elvisngibuini@gmail.com
+EMAIL_TO=elvisngibuini@gmail.com
+ADMIN_API_KEY=lyVRAsues3sICGgJjXDfcYy5dnRFq5eJ9o34i6yL/fQ=
+JWT_SECRET=your-super-secret-jwt-key-here
+
+
+🔗 UPDATE FRONTEND WITH BACKEND URL
+================================================================================
+
+After backend deployment, update these 2 files:
+
+1. admin.html (line 630):
+   const API_BASE = 'https://your-backend-url.com/api';
+
+2. js/api.js (line 4):
+   const API_BASE_URL = 'https://your-backend-url.com/api';
+
+Then redeploy:
+   git add .
+   git commit -m "Connect to backend API"
+   git push origin main
+
+
+🧪 TESTING
+================================================================================
+
+Frontend:
+   https://eluisngibuni.github.io/portfolio
+
+Admin Panel:
+   https://eluisngibuni.github.io/portfolio/admin.html
+
+Backend Health Check:
+   https://your-backend-url.com/api/health
+
+
+📊 POST-DEPLOYMENT
+================================================================================
+
+Submit Sitemap to Google:
+   1. Go to: https://search.google.com/search-console
+   2. Add property: https://eluisngibuni.github.io/portfolio
+   3. Submit sitemap: https://eluisngibuni.github.io/portfolio/sitemap.xml
+
+
+🔄 UPDATING CONTENT
+================================================================================
+
+git add .
+git commit -m "Update portfolio content"
+git push origin main
+
+# Changes will be live in 2-3 minutes
+
+
+📚 DOCUMENTATION
+================================================================================
+
+Complete Guide:        START-DEPLOYMENT.md
+Quick Reference:       DEPLOYMENT-QUICK-REFERENCE.md
+Backend Guide:         BACKEND-DEPLOYMENT.md
+Full Checklist:        DEPLOYMENT-CHECKLIST.md
+Security Info:         SECURITY-IMPROVEMENTS.md
+Ready Status:          DEPLOYMENT-READY.md
+
+
+🆘 TROUBLESHOOTING
+================================================================================
+
+Contact form not working:
+   - Check browser console (F12)
+   - Verify backend URL in js/api.js
+   - Wait 30 seconds (backend may be sleeping)
+
+Admin panel authentication failed:
+   - Verify API key matches in admin.html and backend
+   - Check browser console for 401 errors
+
+Emails not received:
+   - Check spam folder
+   - Verify Gmail App Password (16 characters)
+   - Check Render logs for errors
+
+
+✅ DEPLOYMENT CHECKLIST
+================================================================================
+
+Frontend:
+   [ ] Run test-deployment.bat
+   [ ] Initialize Git repository
+   [ ] Create GitHub repository
+   [ ] Push code to GitHub
+   [ ] Enable GitHub Pages
+   [ ] Verify site is live
+
+Backend (Optional):
+   [ ] Get Gmail App Password
+   [ ] Sign up for Render
+   [ ] Deploy backend service
+   [ ] Configure environment variables
+   [ ] Copy backend URL
+
+Integration:
+   [ ] Update admin.html with backend URL
+   [ ] Update js/api.js with backend URL
+   [ ] Redeploy frontend
+   [ ] Test contact form
+   [ ] Test admin panel
+   [ ] Verify email notifications
+
+Post-Deployment:
+   [ ] Submit sitemap to Google
+   [ ] Set up analytics (optional)
+   [ ] Share on social media
+   [ ] Add to resume/LinkedIn
+
+
+🎉 YOUR URLS
+================================================================================
+
+Portfolio:      https://eluisngibuni.github.io/portfolio
+Admin Panel:    https://eluisngibuni.github.io/portfolio/admin.html
+GitHub Repo:    https://github.com/EluisNgibuni/portfolio
+Backend:        (Update after deployment)
+
+
+================================================================================
+Created: February 18, 2026
+Status: Ready for Deployment
+================================================================================

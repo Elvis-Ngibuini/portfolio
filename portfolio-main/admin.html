@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; color: #333; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; }
+        .logout-btn {
+            background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.3s;
+        }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+        .tabs {
+            display: flex; gap: 0.5rem; margin-bottom: 2rem;
+            background: white; padding: 0.5rem; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem; border: none; background: transparent; cursor: pointer;
+            border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #666;
+            transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .tab-btn:hover { background: #f0f2f5; color: #333; }
+        .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card {
+            background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .btn {
+            padding: 0.75rem 1.25rem; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 0.95rem; font-weight: 500; transition: all 0.3s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+        .table-container { overflow-x: auto; margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #444; }
+        tr:hover { background: #f8f9fa; }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white; border-radius: 12px; width: 90%; max-width: 800px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; transition: color 0.3s; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #444; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 0.95rem; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-group textarea { min-height: 150px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .loading { text-align: center; padding: 3rem; color: #888; }
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 8px;
+            color: white; z-index: 2000; animation: slideIn 0.3s ease;
+        }
+        .notification.success { background: #10b981; }
+        .notification.error { background: #ef4444; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .modal-overlay { display: none; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        #loginModal { display: flex; }
+        .modal-overlay { display: none; align-items: center; justify-content: center; }
+        .image-preview { max-width: 200px; max-height: 200px; margin-top: 0.5rem; border-radius: 8px; border: 1px solid #eee; }
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+        .tech-tag { background: #f0f2f5; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.85rem; }
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 1rem; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-lock"></i> Admin Login</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1.5rem; color: #666;">Enter credentials to access the dashboard.</p>
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Password" required>
+                </div>
+                <div id="loginError" class="error" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px;">
+                    <i class="fas fa-exclamation-circle"></i> <span id="loginErrorText">Invalid credentials. Please try again.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+        <header class="header">
+            <h1><i class="fas fa-cubes"></i> Portfolio Admin</h1>
+            <div class="header-right">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> Home</button>
+                <button class="tab-btn" data-tab="projects"><i class="fas fa-project-diagram"></i> Projects</button>
+                <button class="tab-btn" data-tab="graphic-design"><i class="fas fa-palette"></i> Graphic Design</button>
+                <button class="tab-btn" data-tab="skills"><i class="fas fa-code"></i> Skills</button>
+                <button class="tab-btn" data-tab="challenges"><i class="fas fa-shield-alt"></i> Challenges</button>
+                <button class="tab-btn" data-tab="contributions"><i class="fas fa-code-branch"></i> Contributions</button>
+                <button class="tab-btn" data-tab="experience"><i class="fas fa-briefcase"></i> Experience</button>
+                <button class="tab-btn" data-tab="contact"><i class="fas fa-address-book"></i> Contact</button>
+            </div>
+
+            <!-- Home Section -->
+            <div id="home" class="tab-content active">
+                <div class="card">
+                    <h2><i class="fas fa-home"></i> Home Page Content</h2>
+                    <div id="homeContent" class="loading">Loading...</div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="editHome()"><i class="fas fa-edit"></i> Edit Home Page</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <div id="projects" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-project-diagram"></i> Projects</h2>
+                        <button class="btn btn-primary" onclick="openProjectModal()"><i class="fas fa-plus"></i> Add Project</button>
+                    </div>
+                    <div id="projectsTable" class="table-container"><div class="loading">Loading projects...</div></div>
+                </div>
+            </div>
+
+            <!-- Graphic Design Section -->
+            <div id="graphic-design" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-palette"></i> Graphic Design</h2>
+                        <button class="btn btn-primary" onclick="openGraphicDesignModal()"><i class="fas fa-plus"></i> Add Design</button>
+                    </div>
+                    <div id="graphicDesignTable" class="table-container"><div class="loading">Loading designs...</div></div>
+                </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div id="skills" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-code"></i> Skills</h2>
+                        <button class="btn btn-primary" onclick="openSkillModal()"><i class="fas fa-plus"></i> Add Skill</button>
+                    </div>
+                    <div id="skillsTable" class="table-container"><div class="loading">Loading skills...</div></div>
+                </div>
+            </div>
+
+            <!-- Challenges Section -->
+            <div id="challenges" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-shield-alt"></i> Challenges & Certifications</h2>
+                        <button class="btn btn-primary" onclick="openChallengeModal()"><i class="fas fa-plus"></i> Add Challenge</button>
+                    </div>
+                    <div id="challengesTable" class="table-container"><div class="loading">Loading challenges...</div></div>
+                </div>
+            </div>
+
+            <!-- Contributions Section -->
+            <div id="contributions" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-code-branch"></i> Contributions</h2>
+                        <button class="btn btn-primary" onclick="openContributionModal()"><i class="fas fa-plus"></i> Add Contribution</button>
+                    </div>
+                    <div id="contributionsTable" class="table-container"><div class="loading">Loading contributions...</div></div>
+                </div>
+            </div>
+
+            <!-- Experience Section -->
+            <div id="experience" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2><i class="fas fa-briefcase"></i> Experience</h2>
+                        <button class="btn btn-primary" onclick="openExperienceModal()"><i class="fas fa-plus"></i> Add Experience</button>
+                    </div>
+                    <div id="experienceTable" class="table-container"><div class="loading">Loading experience...</div></div>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div id="contact" class="tab-content">
+                <div class="card">
+                    <h2><i class="fas fa-address-book"></i> Contact Information</h2>
+                    <div id="contactContent" class="loading">Loading...</div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="editContact()"><i class="fas fa-edit"></i> Edit Contact Info</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Modal -->
+    <div id="homeModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Edit Home Page</h2>
+                <button class="modal-close" onclick="closeModal('homeModal')">&times;</button>
+            </div>
+            <form id="homeForm" onsubmit="saveHome(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="homeName">Name</label>
+                        <input type="text" id="homeName">
+                    </div>
+                    <div class="form-group">
+                        <label for="homeTitle">Title</label>
+                        <input type="text" id="homeTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="homeDescription">Description</label>
+                        <textarea id="homeDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="homeImage">Profile Image</label>
+                        <input type="file" id="homeImage" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('homeModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="projectModalTitle">Add Project</h2>
+                <button class="modal-close" onclick="closeModal('projectModal')">&times;</button>
+            </div>
+            <form id="projectForm" onsubmit="saveProject(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="projectId">
+                    <div class="form-group">
+                        <label for="projectTitle">Title *</label>
+                        <input type="text" id="projectTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Description *</label>
+                        <textarea id="projectDescription" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectCategory">Category</label>
+                            <select id="projectCategory">
+                                <option value="web">Web Dev</option>
+                                <option value="dsa">DSA</option>
+                                <option value="cloud">Cloud</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectDate">Date</label>
+                            <input type="date" id="projectDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectImages">Images</label>
+                        <input type="file" id="projectImages" accept="image/*" multiple>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectTechnologies">Technologies (comma separated)</label>
+                        <input type="text" id="projectTechnologies" placeholder="React, Node.js, MongoDB">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectGithub">GitHub URL</label>
+                        <input type="url" id="projectGithub">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDemo">Demo URL</label>
+                        <input type="url" id="projectDemo">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="projectFeatured"> Featured Project
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('projectModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Graphic Design Modal -->
+    <div id="graphicDesignModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="graphicDesignModalTitle">Add Design</h2>
+                <button class="modal-close" onclick="closeModal('graphicDesignModal')">&times;</button>
+            </div>
+            <form id="graphicDesignForm" onsubmit="saveGraphicDesign(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="graphicDesignId">
+                    <div class="form-group">
+                        <label for="graphicDesignTitle">Title *</label>
+                        <input type="text" id="graphicDesignTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDesignDescription">Description</label>
+                        <textarea id="graphicDesignDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDesignCategory">Category</label>
+                        <select id="graphicDesignCategory">
+                            <option value="branding">Branding</option>
+                            <option value="social-media">Social Media</option>
+                            <option value="print">Print</option>
+                            <option value="ui-ux">UI/UX</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDesignDate">Date</label>
+                        <input type="date" id="graphicDesignDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDesignImages">Images *</label>
+                        <input type="file" id="graphicDesignImages" accept="image/*" multiple required>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDesignTools">Tools (comma separated)</label>
+                        <input type="text" id="graphicDesignTools" placeholder="Photoshop, Illustrator">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="graphicDesignFeatured"> Featured Design
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('graphicDesignModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Design</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Skill Modal -->
+    <div id="skillModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="skillModalTitle">Add Skill</h2>
+                <button class="modal-close" onclick="closeModal('skillModal')">&times;</button>
+            </div>
+            <form id="skillForm" onsubmit="saveSkill(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="skillId">
+                    <div class="form-group">
+                        <label for="skillCategory">Category *</label>
+                        <select id="skillCategory" required>
+                            <option value="languages">Programming Languages</option>
+                            <option value="frontend">Frontend Development</option>
+                            <option value="backend">Backend Development</option>
+                            <option value="database-cloud">Database & Cloud</option>
+                            <option value="devops-tools">DevOps & Tools</option>
+                            <option value="cybersecurity">Cybersecurity & Networking</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="skillName">Skill Name *</label>
+                        <input type="text" id="skillName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="skillLevel">Level (%)</label>
+                        <input type="number" id="skillLevel" min="0" max="100" value="80">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('skillModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Skill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Challenge Modal -->
+    <div id="challengeModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="challengeModalTitle">Add Challenge</h2>
+                <button class="modal-close" onclick="closeModal('challengeModal')">&times;</button>
+            </div>
+            <form id="challengeForm" onsubmit="saveChallenge(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="challengeId">
+                    <div class="form-group">
+                        <label for="challengeTitle">Title *</label>
+                        <input type="text" id="challengeTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeDescription">Description</label>
+                        <textarea id="challengeDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeUrl">URL</label>
+                        <input type="url" id="challengeUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeDate">Date</label>
+                        <input type="date" id="challengeDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeImage">Image</label>
+                        <input type="file" id="challengeImage" accept="image/*">
+                        <img id="challengeImagePreview" class="image-preview" style="display: none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('challengeModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Challenge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contribution Modal -->
+    <div id="contributionModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="contributionModalTitle">Add Contribution</h2>
+                <button class="modal-close" onclick="closeModal('contributionModal')">&times;</button>
+            </div>
+            <form id="contributionForm" onsubmit="saveContribution(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="contributionId">
+                    <div class="form-group">
+                        <label for="contributionTitle">Title *</label>
+                        <input type="text" id="contributionTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contributionDescription">Description</label>
+                        <textarea id="contributionDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="contributionRepo">Repository URL</label>
+                        <input type="url" id="contributionRepo">
+                    </div>
+                    <div class="form-group">
+                        <label for="contributionDate">Date</label>
+                        <input type="date" id="contributionDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('contributionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contribution</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Experience Modal -->
+    <div id="experienceModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="experienceModalTitle">Add Experience</h2>
+                <button class="modal-close" onclick="closeModal('experienceModal')">&times;</button>
+            </div>
+            <form id="experienceForm" onsubmit="saveExperience(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="experienceId">
+                    <div class="form-group">
+                        <label for="experienceCompany">Company *</label>
+                        <input type="text" id="experienceCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="experienceRole">Role *</label>
+                        <input type="text" id="experienceRole" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="experienceStart">Start Date</label>
+                            <input type="date" id="experienceStart">
+                        </div>
+                        <div class="form-group">
+                            <label for="experienceEnd">End Date (leave blank for current)</label>
+                            <input type="date" id="experienceEnd">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="experienceDescription">Description</label>
+                        <textarea id="experienceDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="experienceTechnologies">Technologies (comma separated)</label>
+                        <input type="text" id="experienceTechnologies">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('experienceModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Experience</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Edit Contact Info</h2>
+                <button class="modal-close" onclick="closeModal('contactModal')">&times;</button>
+            </div>
+            <form id="contactForm" onsubmit="saveContact(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="contactEmail">Email</label>
+                        <input type="email" id="contactEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Phone</label>
+                        <input type="tel" id="contactPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactLinkedIn">LinkedIn URL</label>
+                        <input type="url" id="contactLinkedIn">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactGithub">GitHub URL</label>
+                        <input type="url" id="contactGithub">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactWhatsApp">WhatsApp Number</label>
+                        <input type="tel" id="contactWhatsApp">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('contactModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contact Info</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+        const API_BASE = 'http://localhost:3001/api';
+        let authToken = localStorage.getItem('admin_token') || null;
+        
+        function checkAuthentication() {
+            const token = localStorage.getItem('admin_token');
+            const authTime = localStorage.getItem('admin_auth_time');
+            if (token && authTime) {
+                const timeDiff = Date.now() - parseInt(authTime);
+                return timeDiff < 8 * 60 * 60 * 1000;
+            }
+            return false;
+        }
+        
+        async function login() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (!username || !password) {
+                document.getElementById('loginErrorText').textContent = 'Username and password required';
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                
+if (data.success) {
+                     authToken = data.token;
+                     localStorage.setItem('admin_token', data.token);
+                     localStorage.setItem('admin_auth_time', Date.now().toString());
+                     document.getElementById('loginModal').style.display = 'none';
+                     document.getElementById('loginModal').classList.remove('active');
+                     document.getElementById('mainContent').style.display = 'block';
+                     initAdmin();
+                     showNotification('Login successful!', 'success');
+                 } else {
+                    document.getElementById('loginErrorText').textContent = data.message || 'Invalid credentials';
+                    document.getElementById('loginError').style.display = 'block';
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
+                }
+            } catch (error) {
+                document.getElementById('loginErrorText').textContent = 'Connection error. Is the backend running?';
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_auth_time');
+                location.reload();
+            }
+        }
+        
+        function getAuthHeaders() {
+            return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+        });
+
+        document.getElementById('adminUsername').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('adminPassword').focus();
+        });
+        
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+
+        async function initAdmin() {
+            try {
+                const res = await fetch(`${API_BASE}/bulk`);
+                const data = await res.json();
+                if (data.success) {
+                    if (data.data.home) {
+                        const homeDiv = document.getElementById('homeContent');
+                        homeDiv.innerHTML = `
+                            <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-start;">
+                                ${data.data.home.image ? `<img src="${data.data.home.image}" style="max-width: 200px; border-radius: 50%;">` : ''}
+                                <div>
+                                    <h3 style="color: #667eea;">${data.data.home.name || 'Name'}</h3>
+                                    <p style="font-size: 1.2rem; font-weight: 500;">${data.data.home.title || 'Title'}</p>
+                                    <p style="color: #666; margin-top: 0.5rem;">${data.data.home.description || 'Description'}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (data.data.projects) {
+                        window.allProjects = data.data.projects;
+                        renderProjectsTable(data.data.projects);
+                    }
+                    if (data.data.designs) renderDesignsTable(data.data.designs);
+                    if (data.data.skills) renderSkillsTable(data.data.skills);
+                    if (data.data.challenges) renderChallengesTable(data.data.challenges);
+                    if (data.data.contributions) renderContributionsTable(data.data.contributions);
+                    if (data.data.experience) renderExperienceTable(data.data.experience);
+                    if (data.data.contact) {
+                        const contactDiv = document.getElementById('contactContent');
+                        contactDiv.innerHTML = `
+                            <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                                <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong><i class="fas fa-envelope" style="color: #667eea;"></i> Email</strong><br>
+                                    ${data.data.contact.email || '-'}
+                                </li>
+                                <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong><i class="fas fa-phone" style="color: #667eea;"></i> Phone</strong><br>
+                                    ${data.data.contact.phone || '-'}
+                                </li>
+                                <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong><i class="fab fa-linkedin" style="color: #667eea;"></i> LinkedIn</strong><br>
+                                    ${data.data.contact.linkedin || '-'}
+                                </li>
+                                <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong><i class="fab fa-github" style="color: #667eea;"></i> GitHub</strong><br>
+                                    ${data.data.contact.github || '-'}
+                                </li>
+                                <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong><i class="fab fa-whatsapp" style="color: #667eea;"></i> WhatsApp</strong><br>
+                                    ${data.data.contact.whatsapp || '-'}
+                                </li>
+                            </ul>
+                        `;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                loadHome();
+                loadProjects();
+                loadGraphicDesign();
+                loadSkills();
+                loadChallenges();
+                loadContributions();
+                loadExperience();
+                loadContact();
+            }
+        }
+
+        function renderProjectsTable(projects) {
+            const table = document.getElementById('projectsTable');
+            if (!projects.length) {
+                table.innerHTML = '<div class="loading">No projects found. Click "Add Project" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Featured</th>
+                            <th>Technologies</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${projects.map(p => `
+                            <tr>
+                                <td><strong>${p.title}</strong></td>
+                                <td>${p.category}</td>
+                                <td>${p.date || '-'}</td>
+                                <td>${p.featured ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '<i class="far fa-star" style="color: #ccc;"></i>'}</td>
+                                <td>
+                                    <div class="tech-tags">
+                                        ${(p.technologies || []).slice(0, 3).map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editProject('${p._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteProject('${p._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderDesignsTable(designs) {
+            const table = document.getElementById('graphicDesignTable');
+            if (!designs.length) {
+                table.innerHTML = '<div class="loading">No designs found. Click "Add Design" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Featured</th>
+                            <th>Tools</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${designs.map(d => `
+                            <tr>
+                                <td><strong>${d.title}</strong></td>
+                                <td>${d.category}</td>
+                                <td>${d.date || '-'}</td>
+                                <td>${d.featured ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '<i class="far fa-star" style="color: #ccc;"></i>'}</td>
+                                <td>
+                                    <div class="tech-tags">
+                                        ${(d.tools || []).slice(0, 3).map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editGraphicDesign('${d._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteGraphicDesign('${d._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderSkillsTable(skills) {
+            const table = document.getElementById('skillsTable');
+            if (!skills.length) {
+                table.innerHTML = '<div class="loading">No skills found. Click "Add Skill" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Skill</th>
+                            <th>Level</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${skills.map(s => `
+                            <tr>
+                                <td>${s.category}</td>
+                                <td>${s.name}</td>
+                                <td>${s.level}%</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editSkill('${s._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteSkill('${s._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderChallengesTable(challenges) {
+            const table = document.getElementById('challengesTable');
+            if (!challenges.length) {
+                table.innerHTML = '<div class="loading">No challenges found. Click "Add Challenge" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${challenges.map(c => `
+                            <tr>
+                                <td><strong>${c.title}</strong></td>
+                                <td>${c.date || '-'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editChallenge('${c._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteChallenge('${c._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderContributionsTable(contributions) {
+            const table = document.getElementById('contributionsTable');
+            if (!contributions.length) {
+                table.innerHTML = '<div class="loading">No contributions found. Click "Add Contribution" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${contributions.map(c => `
+                            <tr>
+                                <td><strong>${c.title}</strong></td>
+                                <td>${c.date || '-'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editContribution('${c._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteContribution('${c._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderExperienceTable(experience) {
+            const table = document.getElementById('experienceTable');
+            if (!experience.length) {
+                table.innerHTML = '<div class="loading">No experience found. Click "Add Experience" to get started!</div>';
+                return;
+            }
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Role</th>
+                            <th>Dates</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${experience.map(exp => `
+                            <tr>
+                                <td><strong>${exp.company}</strong></td>
+                                <td>${exp.role}</td>
+                                <td>${exp.start} - ${exp.end || 'Present'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editExperience('${exp._id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteExperience('${exp._id}')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function editHome() {
+            try {
+                const res = await fetch(`${API_BASE}/home`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('homeName').value = data.data.name || '';
+                    document.getElementById('homeTitle').value = data.data.title || '';
+                    document.getElementById('homeDescription').value = data.data.description || '';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            document.getElementById('homeModal').classList.add('active');
+        }
+
+        async function saveHome(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('homeName').value);
+            formData.append('title', document.getElementById('homeTitle').value);
+            formData.append('description', document.getElementById('homeDescription').value);
+            const file = document.getElementById('homeImage').files[0];
+            if (file) formData.append('image', file);
+            try {
+                const res = await fetch(`${API_BASE}/home`, {
+                    method: 'PUT', body: formData, headers: { ...getAuthHeaders() }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('homeModal');
+                    loadHome();
+                    showNotification('Home page updated!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error updating home page', 'error');
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                const res = await fetch(`${API_BASE}/projects`);
+                const data = await res.json();
+                const table = document.getElementById('projectsTable');
+                if (data.success) {
+                    if (!data.projects.length) {
+                        table.innerHTML = '<div class="loading">No projects found. Click "Add Project" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Featured</th>
+                                    <th>Technologies</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.projects.map(p => `
+                                    <tr>
+                                        <td><strong>${p.title}</strong></td>
+                                        <td>${p.category}</td>
+                                        <td>${p.date || '-'}</td>
+                                        <td>${p.featured ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '<i class="far fa-star" style="color: #ccc;"></i>'}</td>
+                                        <td>
+                                            <div class="tech-tags">
+                                                ${(p.technologies || []).slice(0, 3).map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editProject('${p._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteProject('${p._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function openProjectModal(project = null) {
+            document.getElementById('projectModalTitle').textContent = project ? 'Edit Project' : 'Add Project';
+            document.getElementById('projectId').value = project ? project._id : '';
+            document.getElementById('projectTitle').value = project ? project.title : '';
+            document.getElementById('projectDescription').value = project ? project.description : '';
+            document.getElementById('projectCategory').value = project ? project.category : 'web';
+            document.getElementById('projectDate').value = project ? project.date : '';
+            document.getElementById('projectTechnologies').value = project ? (project.technologies || []).join(', ') : '';
+            document.getElementById('projectGithub').value = project ? (project.github || '') : '';
+            document.getElementById('projectDemo').value = project ? (project.demo || '') : '';
+            document.getElementById('projectFeatured').checked = project ? project.featured : false;
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        async function saveProject(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('projectTitle').value);
+            formData.append('description', document.getElementById('projectDescription').value);
+            formData.append('category', document.getElementById('projectCategory').value);
+            formData.append('date', document.getElementById('projectDate').value);
+            formData.append('technologies', document.getElementById('projectTechnologies').value);
+            formData.append('github', document.getElementById('projectGithub').value);
+            formData.append('demo', document.getElementById('projectDemo').value);
+            formData.append('featured', document.getElementById('projectFeatured').checked);
+            const files = document.getElementById('projectImages').files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+            const id = document.getElementById('projectId').value;
+            try {
+                const res = await fetch(`${API_BASE}/projects${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('projectModal');
+                    loadProjects();
+                    showNotification(id ? 'Project updated!' : 'Project created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving project', 'error');
+            }
+        }
+
+        async function editProject(id) {
+            try {
+                const res = await fetch(`${API_BASE}/projects/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openProjectModal(data.project);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadProjects(); showNotification('Project deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadGraphicDesign() {
+            try {
+                const res = await fetch(`${API_BASE}/graphic-design`);
+                const data = await res.json();
+                const table = document.getElementById('graphicDesignTable');
+                if (data.success) {
+                    if (!data.designs.length) {
+                        table.innerHTML = '<div class="loading">No designs found. Click "Add Design" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Featured</th>
+                                    <th>Tools</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.designs.map(d => `
+                                    <tr>
+                                        <td><strong>${d.title}</strong></td>
+                                        <td>${d.category}</td>
+                                        <td>${d.date || '-'}</td>
+                                        <td>${d.featured ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '<i class="far fa-star" style="color: #ccc;"></i>'}</td>
+                                        <td>
+                                            <div class="tech-tags">
+                                                ${(d.tools || []).slice(0, 3).map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editGraphicDesign('${d._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteGraphicDesign('${d._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openGraphicDesignModal(design = null) {
+            document.getElementById('graphicDesignModalTitle').textContent = design ? 'Edit Design' : 'Add Design';
+            document.getElementById('graphicDesignId').value = design ? design._id : '';
+            document.getElementById('graphicDesignTitle').value = design ? design.title : '';
+            document.getElementById('graphicDesignDescription').value = design ? design.description : '';
+            document.getElementById('graphicDesignCategory').value = design ? design.category : 'branding';
+            document.getElementById('graphicDesignDate').value = design ? design.date : '';
+            document.getElementById('graphicDesignTools').value = design ? (design.tools || []).join(', ') : '';
+            document.getElementById('graphicDesignFeatured').checked = design ? design.featured : false;
+            document.getElementById('graphicDesignModal').classList.add('active');
+        }
+
+        async function saveGraphicDesign(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('graphicDesignTitle').value);
+            formData.append('description', document.getElementById('graphicDesignDescription').value);
+            formData.append('category', document.getElementById('graphicDesignCategory').value);
+            formData.append('date', document.getElementById('graphicDesignDate').value);
+            formData.append('tools', document.getElementById('graphicDesignTools').value);
+            formData.append('featured', document.getElementById('graphicDesignFeatured').checked);
+            const files = document.getElementById('graphicDesignImages').files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+            const id = document.getElementById('graphicDesignId').value;
+            try {
+                const res = await fetch(`${API_BASE}/graphic-design${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('graphicDesignModal');
+                    loadGraphicDesign();
+                    showNotification(id ? 'Design updated!' : 'Design created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving design', 'error');
+            }
+        }
+
+        async function editGraphicDesign(id) {
+            try {
+                const res = await fetch(`${API_BASE}/graphic-design/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openGraphicDesignModal(data.design);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteGraphicDesign(id) {
+            if (!confirm('Are you sure you want to delete this design?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/graphic-design/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadGraphicDesign(); showNotification('Design deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadSkills() {
+            try {
+                const res = await fetch(`${API_BASE}/skills`);
+                const data = await res.json();
+                const table = document.getElementById('skillsTable');
+                if (data.success) {
+                    if (!data.skills.length) {
+                        table.innerHTML = '<div class="loading">No skills found. Click "Add Skill" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Skill</th>
+                                    <th>Level</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.skills.map(s => `
+                                    <tr>
+                                        <td>${s.category}</td>
+                                        <td>${s.name}</td>
+                                        <td>${s.level}%</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editSkill('${s._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteSkill('${s._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openSkillModal(skill = null) {
+            document.getElementById('skillModalTitle').textContent = skill ? 'Edit Skill' : 'Add Skill';
+            document.getElementById('skillId').value = skill ? skill._id : '';
+            document.getElementById('skillCategory').value = skill ? skill.category : 'languages';
+            document.getElementById('skillName').value = skill ? skill.name : '';
+            document.getElementById('skillLevel').value = skill ? skill.level : 80;
+            document.getElementById('skillModal').classList.add('active');
+        }
+
+        async function saveSkill(e) {
+            e.preventDefault();
+            const skillData = {
+                category: document.getElementById('skillCategory').value,
+                name: document.getElementById('skillName').value,
+                level: parseInt(document.getElementById('skillLevel').value)
+            };
+            const id = document.getElementById('skillId').value;
+            try {
+                const res = await fetch(`${API_BASE}/skills${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify(skillData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('skillModal');
+                    loadSkills();
+                    showNotification(id ? 'Skill updated!' : 'Skill created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving skill', 'error');
+            }
+        }
+
+        async function editSkill(id) {
+            try {
+                const res = await fetch(`${API_BASE}/skills/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openSkillModal(data.skill);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteSkill(id) {
+            if (!confirm('Are you sure you want to delete this skill?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/skills/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadSkills(); showNotification('Skill deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadChallenges() {
+            try {
+                const res = await fetch(`${API_BASE}/challenges`);
+                const data = await res.json();
+                const table = document.getElementById('challengesTable');
+                if (data.success) {
+                    if (!data.challenges.length) {
+                        table.innerHTML = '<div class="loading">No challenges found. Click "Add Challenge" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.challenges.map(c => `
+                                    <tr>
+                                        <td><strong>${c.title}</strong></td>
+                                        <td>${c.date || '-'}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editChallenge('${c._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteChallenge('${c._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openChallengeModal(challenge = null) {
+            document.getElementById('challengeModalTitle').textContent = challenge ? 'Edit Challenge' : 'Add Challenge';
+            document.getElementById('challengeId').value = challenge ? challenge._id : '';
+            document.getElementById('challengeTitle').value = challenge ? challenge.title : '';
+            document.getElementById('challengeDescription').value = challenge ? challenge.description : '';
+            document.getElementById('challengeUrl').value = challenge ? (challenge.url || '') : '';
+            document.getElementById('challengeDate').value = challenge ? challenge.date : '';
+            const preview = document.getElementById('challengeImagePreview');
+            if (challenge && challenge.image) {
+                preview.src = challenge.image;
+                preview.style.display = 'block';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+            document.getElementById('challengeModal').classList.add('active');
+        }
+
+        async function saveChallenge(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('challengeTitle').value);
+            formData.append('description', document.getElementById('challengeDescription').value);
+            formData.append('url', document.getElementById('challengeUrl').value);
+            formData.append('date', document.getElementById('challengeDate').value);
+            const file = document.getElementById('challengeImage').files[0];
+            if (file) formData.append('image', file);
+            const id = document.getElementById('challengeId').value;
+            try {
+                const res = await fetch(`${API_BASE}/challenges${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('challengeModal');
+                    loadChallenges();
+                    showNotification(id ? 'Challenge updated!' : 'Challenge created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving challenge', 'error');
+            }
+        }
+
+        async function editChallenge(id) {
+            try {
+                const res = await fetch(`${API_BASE}/challenges/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openChallengeModal(data.challenge);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteChallenge(id) {
+            if (!confirm('Are you sure you want to delete this challenge?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/challenges/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadChallenges(); showNotification('Challenge deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadContributions() {
+            try {
+                const res = await fetch(`${API_BASE}/contributions`);
+                const data = await res.json();
+                const table = document.getElementById('contributionsTable');
+                if (data.success) {
+                    if (!data.contributions.length) {
+                        table.innerHTML = '<div class="loading">No contributions found. Click "Add Contribution" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.contributions.map(c => `
+                                    <tr>
+                                        <td><strong>${c.title}</strong></td>
+                                        <td>${c.date || '-'}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editContribution('${c._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteContribution('${c._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openContributionModal(contribution = null) {
+            document.getElementById('contributionModalTitle').textContent = contribution ? 'Edit Contribution' : 'Add Contribution';
+            document.getElementById('contributionId').value = contribution ? contribution._id : '';
+            document.getElementById('contributionTitle').value = contribution ? contribution.title : '';
+            document.getElementById('contributionDescription').value = contribution ? contribution.description : '';
+            document.getElementById('contributionRepo').value = contribution ? (contribution.repo || '') : '';
+            document.getElementById('contributionDate').value = contribution ? contribution.date : '';
+            document.getElementById('contributionModal').classList.add('active');
+        }
+
+        async function saveContribution(e) {
+            e.preventDefault();
+            const contributionData = {
+                title: document.getElementById('contributionTitle').value,
+                description: document.getElementById('contributionDescription').value,
+                repo: document.getElementById('contributionRepo').value,
+                date: document.getElementById('contributionDate').value
+            };
+            const id = document.getElementById('contributionId').value;
+            try {
+                const res = await fetch(`${API_BASE}/contributions${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify(contributionData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('contributionModal');
+                    loadContributions();
+                    showNotification(id ? 'Contribution updated!' : 'Contribution created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving contribution', 'error');
+            }
+        }
+
+        async function editContribution(id) {
+            try {
+                const res = await fetch(`${API_BASE}/contributions/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openContributionModal(data.contribution);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteContribution(id) {
+            if (!confirm('Are you sure you want to delete this contribution?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/contributions/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadContributions(); showNotification('Contribution deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadExperience() {
+            try {
+                const res = await fetch(`${API_BASE}/experience`);
+                const data = await res.json();
+                const table = document.getElementById('experienceTable');
+                if (data.success) {
+                    if (!data.experience.length) {
+                        table.innerHTML = '<div class="loading">No experience found. Click "Add Experience" to get started!</div>';
+                        return;
+                    }
+                    table.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Role</th>
+                                    <th>Dates</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.experience.map(exp => `
+                                    <tr>
+                                        <td><strong>${exp.company}</strong></td>
+                                        <td>${exp.role}</td>
+                                        <td>${exp.start} - ${exp.end || 'Present'}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="editExperience('${exp._id}')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteExperience('${exp._id}')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openExperienceModal(exp = null) {
+            document.getElementById('experienceModalTitle').textContent = exp ? 'Edit Experience' : 'Add Experience';
+            document.getElementById('experienceId').value = exp ? exp._id : '';
+            document.getElementById('experienceCompany').value = exp ? exp.company : '';
+            document.getElementById('experienceRole').value = exp ? exp.role : '';
+            document.getElementById('experienceStart').value = exp ? exp.start : '';
+            document.getElementById('experienceEnd').value = exp ? (exp.end || '') : '';
+            document.getElementById('experienceDescription').value = exp ? exp.description : '';
+            document.getElementById('experienceTechnologies').value = exp ? (exp.technologies || []).join(', ') : '';
+            document.getElementById('experienceModal').classList.add('active');
+        }
+
+        async function saveExperience(e) {
+            e.preventDefault();
+            const expData = {
+                company: document.getElementById('experienceCompany').value,
+                role: document.getElementById('experienceRole').value,
+                start: document.getElementById('experienceStart').value,
+                end: document.getElementById('experienceEnd').value,
+                description: document.getElementById('experienceDescription').value,
+                technologies: document.getElementById('experienceTechnologies').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+            const id = document.getElementById('experienceId').value;
+            try {
+                const res = await fetch(`${API_BASE}/experience${id ? `/${id}` : ''}`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify(expData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('experienceModal');
+                    loadExperience();
+                    showNotification(id ? 'Experience updated!' : 'Experience created!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving experience', 'error');
+            }
+        }
+
+        async function editExperience(id) {
+            try {
+                const res = await fetch(`${API_BASE}/experience/${id}`, { headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) openExperienceModal(data.experience);
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteExperience(id) {
+            if (!confirm('Are you sure you want to delete this experience?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/experience/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
+                const data = await res.json();
+                if (data.success) { loadExperience(); showNotification('Experience deleted!', 'success'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadContact() {
+            try {
+                const res = await fetch(`${API_BASE}/contact-info`);
+                const data = await res.json();
+                const contactDiv = document.getElementById('contactContent');
+                if (data.success) {
+                    contactDiv.innerHTML = `
+                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                            <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                <strong><i class="fas fa-envelope" style="color: #667eea;"></i> Email</strong><br>
+                                ${data.data.email || '-'}
+                            </li>
+                            <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                <strong><i class="fas fa-phone" style="color: #667eea;"></i> Phone</strong><br>
+                                ${data.data.phone || '-'}
+                            </li>
+                            <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                <strong><i class="fab fa-linkedin" style="color: #667eea;"></i> LinkedIn</strong><br>
+                                ${data.data.linkedin || '-'}
+                            </li>
+                            <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                <strong><i class="fab fa-github" style="color: #667eea;"></i> GitHub</strong><br>
+                                ${data.data.github || '-'}
+                            </li>
+                            <li style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                <strong><i class="fab fa-whatsapp" style="color: #667eea;"></i> WhatsApp</strong><br>
+                                ${data.data.whatsapp || '-'}
+                            </li>
+                        </ul>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function editContact() {
+            try {
+                const res = await fetch(`${API_BASE}/contact-info`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('contactEmail').value = data.data.email || '';
+                    document.getElementById('contactPhone').value = data.data.phone || '';
+                    document.getElementById('contactLinkedIn').value = data.data.linkedin || '';
+                    document.getElementById('contactGithub').value = data.data.github || '';
+                    document.getElementById('contactWhatsApp').value = data.data.whatsapp || '';
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('contactModal').classList.add('active');
+        }
+
+        async function saveContact(e) {
+            e.preventDefault();
+            const contactData = {
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                linkedin: document.getElementById('contactLinkedIn').value,
+                github: document.getElementById('contactGithub').value,
+                whatsapp: document.getElementById('contactWhatsApp').value
+            };
+            try {
+                const res = await fetch(`${API_BASE}/contact-info`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify(contactData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('contactModal');
+                    loadContact();
+                    showNotification('Contact info updated!', 'success');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('Error saving contact info', 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAuthentication()) {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                initAdmin();
+            }
+        });
+    </script>
+</body>
+</html>
