@@ -2824,7 +2824,76 @@ img {
     font-size: 0.9rem;
 }
 
-/* Back to Top Button */
+/* ===== ANIMATION UTILITIES ===== */
+:root {
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --transition-fast: all 120ms var(--ease-out);
+    --transition-base: all 200ms var(--ease-out);
+    --transition-slow: all 400ms var(--ease-in-out);
+}
+
+/* Animation utilities */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+    transition-delay: calc(var(--stagger-index, 0) * 50ms);
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered children */
+.stagger-children > * {
+    transition-delay: calc(var(--stagger-index, 0) * 50ms);
+}
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-light) 25%, var(--border-color) 50%, var(--bg-light) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--rounded);
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .animate-on-scroll {
+        transition: none;
+        transform: none;
+    }
+}
+
+/* ===== FLUID TYPOGRAPHY ===== */
+.fluid-heading {
+    font-size: clamp(2rem, 5vw + 1rem, 4rem);
+    line-height: 1.2;
+}
+
+.fluid-subheading {
+    font-size: clamp(1.25rem, 3vw + 0.8rem, 2rem);
+}
+
+.fluid-body {
+    font-size: clamp(1rem, 1.5vw + 0.85rem, 1.125rem);
+}
+
+/* ===== BACK TO TOP BUTTON ===== */
 .back-to-top {
     position: fixed;
     bottom: 2rem;

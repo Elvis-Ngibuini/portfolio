@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const { authenticateJWT } = require('./middleware/auth');
+const { checkPermission } = require('./middleware/rbac');
 const logger = require('./config/logger');
 
 const app = express();
@@ -210,7 +211,7 @@ app.get('/api/home', cacheMiddleware('home'), (req, res) => {
     const home = readJSON('home.json')[0] || { name: 'Your Name', title: 'Your Title', description: 'Your description' };
     res.json({ success: true, data: home });
 });
-app.put('/api/home', authenticateJWT, upload.single('image'), (req, res) => {
+app.put('/api/home', authenticateJWT, checkPermission('home:write'), upload.single('image'), (req, res) => {
     const home = {
         name: req.body.name,
         title: req.body.title,
@@ -226,7 +227,7 @@ app.get('/api/contact-info', cacheMiddleware('contact-info'), (req, res) => {
     const contact = readJSON('contact-info.json')[0] || { email: '', phone: '', linkedin: '', github: '', whatsapp: '' };
     res.json({ success: true, data: contact });
 });
-app.put('/api/contact-info', authenticateJWT, (req, res) => {
+app.put('/api/contact-info', authenticateJWT, checkPermission('contact:write'), (req, res) => {
     const contact = req.body;
     writeJSON('contact-info.json', [contact]);
     res.json({ success: true, data: contact });
@@ -243,7 +244,7 @@ app.get('/api/graphic-design/:id', (req, res) => {
     if (design) res.json({ success: true, design });
     else res.status(404).json({ success: false, message: 'Design not found' });
 });
-app.post('/api/graphic-design', authenticateJWT, upload.array('images', 10), (req, res) => {
+app.post('/api/graphic-design', authenticateJWT, checkPermission('graphic-design:write'), upload.array('images', 10), (req, res) => {
     const designs = readJSON('graphic-design.json');
     const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
     const newDesign = {
@@ -261,7 +262,7 @@ app.post('/api/graphic-design', authenticateJWT, upload.array('images', 10), (re
     writeJSON('graphic-design.json', designs);
     res.json({ success: true, design: newDesign });
 });
-app.put('/api/graphic-design/:id', authenticateJWT, upload.array('images', 10), (req, res) => {
+app.put('/api/graphic-design/:id', authenticateJWT, checkPermission('graphic-design:write'), upload.array('images', 10), (req, res) => {
     let designs = readJSON('graphic-design.json');
     const index = designs.findIndex(d => d._id === req.params.id);
     if (index === -1) return res.status(404).json({ success: false, message: 'Design not found' });
@@ -280,7 +281,7 @@ app.put('/api/graphic-design/:id', authenticateJWT, upload.array('images', 10), 
     writeJSON('graphic-design.json', designs);
     res.json({ success: true, design: designs[index] });
 });
-app.delete('/api/graphic-design/:id', authenticateJWT, (req, res) => {
+app.delete('/api/graphic-design/:id', authenticateJWT, checkPermission('graphic-design:delete'), (req, res) => {
     let designs = readJSON('graphic-design.json');
     designs = designs.filter(d => d._id !== req.params.id);
     writeJSON('graphic-design.json', designs);
@@ -298,7 +299,7 @@ app.get('/api/skills/:id', (req, res) => {
     if (skill) res.json({ success: true, skill });
     else res.status(404).json({ success: false, message: 'Skill not found' });
 });
-app.post('/api/skills', authenticateJWT, (req, res) => {
+app.post('/api/skills', authenticateJWT, checkPermission('skills:write'), (req, res) => {
     const skills = readJSON('skills.json');
     const newSkill = {
         _id: Date.now().toString(),
@@ -310,7 +311,7 @@ app.post('/api/skills', authenticateJWT, (req, res) => {
     writeJSON('skills.json', skills);
     res.json({ success: true, skill: newSkill });
 });
-app.put('/api/skills/:id', authenticateJWT, (req, res) => {
+app.put('/api/skills/:id', authenticateJWT, checkPermission('skills:write'), (req, res) => {
     let skills = readJSON('skills.json');
     const index = skills.findIndex(s => s._id === req.params.id);
     if (index === -1) return res.status(404).json({ success: false, message: 'Skill not found' });
@@ -323,7 +324,7 @@ app.put('/api/skills/:id', authenticateJWT, (req, res) => {
     writeJSON('skills.json', skills);
     res.json({ success: true, skill: skills[index] });
 });
-app.delete('/api/skills/:id', authenticateJWT, (req, res) => {
+app.delete('/api/skills/:id', authenticateJWT, checkPermission('skills:delete'), (req, res) => {
     let skills = readJSON('skills.json');
     skills = skills.filter(s => s._id !== req.params.id);
     writeJSON('skills.json', skills);
@@ -341,7 +342,7 @@ app.get('/api/challenges/:id', (req, res) => {
     if (challenge) res.json({ success: true, challenge });
     else res.status(404).json({ success: false, message: 'Challenge not found' });
 });
-app.post('/api/challenges', authenticateJWT, upload.single('image'), (req, res) => {
+app.post('/api/challenges', authenticateJWT, checkPermission('challenges:write'), upload.single('image'), (req, res) => {
     const challenges = readJSON('challenges.json');
     const newChallenge = {
         _id: Date.now().toString(),
@@ -356,7 +357,7 @@ app.post('/api/challenges', authenticateJWT, upload.single('image'), (req, res) 
     writeJSON('challenges.json', challenges);
     res.json({ success: true, challenge: newChallenge });
 });
-app.put('/api/challenges/:id', authenticateJWT, upload.single('image'), (req, res) => {
+app.put('/api/challenges/:id', authenticateJWT, checkPermission('challenges:write'), upload.single('image'), (req, res) => {
     let challenges = readJSON('challenges.json');
     const index = challenges.findIndex(c => c._id === req.params.id);
     if (index === -1) return res.status(404).json({ success: false, message: 'Challenge not found' });
@@ -371,7 +372,7 @@ app.put('/api/challenges/:id', authenticateJWT, upload.single('image'), (req, re
     writeJSON('challenges.json', challenges);
     res.json({ success: true, challenge: challenges[index] });
 });
-app.delete('/api/challenges/:id', authenticateJWT, (req, res) => {
+app.delete('/api/challenges/:id', authenticateJWT, checkPermission('challenges:delete'), (req, res) => {
     let challenges = readJSON('challenges.json');
     challenges = challenges.filter(c => c._id !== req.params.id);
     writeJSON('challenges.json', challenges);
@@ -389,7 +390,7 @@ app.get('/api/contributions/:id', (req, res) => {
     if (contribution) res.json({ success: true, contribution });
     else res.status(404).json({ success: false, message: 'Contribution not found' });
 });
-app.post('/api/contributions', authenticateJWT, (req, res) => {
+app.post('/api/contributions', authenticateJWT, checkPermission('contributions:write'), (req, res) => {
     const contributions = readJSON('contributions.json');
     const newContribution = {
         _id: Date.now().toString(),
@@ -403,7 +404,7 @@ app.post('/api/contributions', authenticateJWT, (req, res) => {
     writeJSON('contributions.json', contributions);
     res.json({ success: true, contribution: newContribution });
 });
-app.put('/api/contributions/:id', authenticateJWT, (req, res) => {
+app.put('/api/contributions/:id', authenticateJWT, checkPermission('contributions:write'), (req, res) => {
     let contributions = readJSON('contributions.json');
     const index = contributions.findIndex(c => c._id === req.params.id);
     if (index === -1) return res.status(404).json({ success: false, message: 'Contribution not found' });
@@ -417,7 +418,7 @@ app.put('/api/contributions/:id', authenticateJWT, (req, res) => {
     writeJSON('contributions.json', contributions);
     res.json({ success: true, contribution: contributions[index] });
 });
-app.delete('/api/contributions/:id', authenticateJWT, (req, res) => {
+app.delete('/api/contributions/:id', authenticateJWT, checkPermission('contributions:delete'), (req, res) => {
     let contributions = readJSON('contributions.json');
     contributions = contributions.filter(c => c._id !== req.params.id);
     writeJSON('contributions.json', contributions);
@@ -435,7 +436,7 @@ app.get('/api/experience/:id', (req, res) => {
     if (exp) res.json({ success: true, experience: exp });
     else res.status(404).json({ success: false, message: 'Experience not found' });
 });
-app.post('/api/experience', authenticateJWT, (req, res) => {
+app.post('/api/experience', authenticateJWT, checkPermission('experience:write'), (req, res) => {
     const experience = readJSON('experience.json');
     const newExp = {
         _id: Date.now().toString(),
@@ -451,7 +452,7 @@ app.post('/api/experience', authenticateJWT, (req, res) => {
     writeJSON('experience.json', experience);
     res.json({ success: true, experience: newExp });
 });
-app.put('/api/experience/:id', authenticateJWT, (req, res) => {
+app.put('/api/experience/:id', authenticateJWT, checkPermission('experience:write'), (req, res) => {
     let experience = readJSON('experience.json');
     const index = experience.findIndex(e => e._id === req.params.id);
     if (index === -1) return res.status(404).json({ success: false, message: 'Experience not found' });
@@ -467,7 +468,7 @@ app.put('/api/experience/:id', authenticateJWT, (req, res) => {
     writeJSON('experience.json', experience);
     res.json({ success: true, experience: experience[index] });
 });
-app.delete('/api/experience/:id', authenticateJWT, (req, res) => {
+app.delete('/api/experience/:id', authenticateJWT, checkPermission('experience:delete'), (req, res) => {
     let experience = readJSON('experience.json');
     experience = experience.filter(e => e._id !== req.params.id);
     writeJSON('experience.json', experience);
@@ -521,11 +522,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(PORT, () => {
-    logger.info('server_start', { port: PORT, env: process.env.NODE_ENV });
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Admin API: http://localhost:${PORT}/api`);
-    console.log(`📂 Uploads: http://localhost:${PORT}/uploads`);
-});
+// Only start server when run directly (not in tests)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        logger.info('server_start', { port: PORT, env: process.env.NODE_ENV });
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📊 Admin API: http://localhost:${PORT}/api`);
+        console.log(`📂 Uploads: http://localhost:${PORT}/uploads`);
+    });
+}
 
 module.exports = app;

@@ -132,12 +132,28 @@ function handleNavScroll() {
     }
 }
 
+// Animate on scroll
+function initScrollAnimations() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                entry.target.style.setProperty('--stagger-index', index % 10);
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0 0 -50px 0' });
+    
+    elements.forEach(el => observer.observe(el));
+}
+
 // Initialize everything
 function init() {
     initTheme();
     type();
     updateYear();
     fetchAndRenderData();
+    initScrollAnimations();
 }
 
 // Update Copyright Year
