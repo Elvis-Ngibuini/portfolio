@@ -76,23 +76,20 @@ const writeJSON = (file, data) => {
     fs.writeFileSync(path.join(STORAGE_DIR, file), JSON.stringify(data, null, 2));
 };
 
-// Security logging middleware
-const logSecurityEvent = (event, req, details = {}) => {
-    const logEntry = {
-        timestamp: new Date().toISOString(),
-        event,
-        ip: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent'),
-        path: req.path,
-        method: req.method,
-        ...details
-    };
-    console.log(JSON.stringify(logEntry));
-};
+// Security logging middleware (Winston)
+app.use('/api', (req, res, next) => {
+    if (req.method !== 'GET') {
+        logger.info('api_request', {
+            path: req.path,
+            method: req.method,
+            ip: req.ip
+        });
+    }
+    next();
+});
 
 // Request sanitization
 const sanitizeInput = (req, res, next) => {
-    // Prevent prototype pollution
     if (req.body) {
         Object.keys(req.body).forEach(key => {
             if (key.toLowerCase().includes('prototype')) delete req.body[key];
