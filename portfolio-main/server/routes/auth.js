@@ -2,81 +2,310 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const router = express.Router();
+const { validatePassword, hashToken, sendVerificationEmail, sendResetEmail, generateRecoveryCodes } = require('../utils/auth-helpers');
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || null;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.JWT_SECRET;
-const ACCESS_EXPIRES = '15m';  // Short-lived for security
-const REFRESH_EXPIRES = '7d';   // Long-lived for convenience
+const ACCESS_EXPIRES = '15m';
+const REFRESH_EXPIRES = '7d';
 
-// In-memory refresh token store (use Redis in production)
+// In-memory stores (use Redis/database in production)
 const refreshTokens = new Map();
+const emailVerificationTokens = new Map();
+const passwordResetTokens = new Map();
 
-router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+// Helper to check if using database
+function useDatabase() {
+    // Check if MongoDB is actually connected
+    try {
+        return mongoose.connection && mongoose.connection.readyState === 1;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Registration
+router.post('/register', async (req, res) => {
+    const { email, password, name, role } = req.body;
     
-    if (!username || !password) {
+    if (!email || !password) {
         return res.status(400).json({
             success: false,
-            message: 'Username and password required'
+            message: 'Email and password required'
         });
     }
     
-    if (username !== ADMIN_USERNAME) {
-        return res.status(401).json({
+    const validation = validatePassword(password);
+    if (!validation.valid) {
+        return res.status(400).json({
             success: false,
-            message: 'Invalid credentials'
+            message: 'Password too weak. Need: 12+ chars, mixed case, numbers, symbols'
         });
     }
     
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
-    
-    if (ADMIN_PASSWORD_HASH) {
-        const isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-        if (!isValid) {
-            return res.status(401).json({
+    try {
+        const mongoose = require('mongoose');
+        const User = mongoose.model('User');
+        
+        // Check existing user
+        const existing = await User.findOne({ email: email.toLowerCase() });
+        if (existing) {
+            return res.status(409).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'User already exists'
             });
         }
-    } else if (password !== adminPassword) {
-        if (process.env.NODE_ENV === 'production') {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
-        }
+        
+        // Hash password
+        const passwordHash = await bcrypt.hash(password, 12);
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const recoveryCodes = generateRecoveryCodes();
+        
+        const user = new User({
+            email: email.toLowerCase(),
+            password: passwordHash,
+            name: name || '',
+            role: role || 'EDITOR',
+            emailVerified: false,
+            recoveryCodes,
+            refreshTokens: []
+        });
+        
+        await user.save();
+        
+        // Store verification token
+        emailVerificationTokens.set(hashToken(verificationToken), {
+            email: email.toLowerCase(),
+            expires: Date.now() + 24 * 60 * 60 * 1000
+        });
+        
+        // Send verification email
+        await sendVerificationEmail(email, verificationToken, name);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Registration successful. Check email for verification.'
+        });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Registration failed'
+        });
     }
-    
-    const accessToken = jwt.sign(
-        { username, role: 'ADMIN' },
-        JWT_SECRET,
-        { expiresIn: ACCESS_EXPIRES }
-    );
-    
-    const refreshToken = jwt.sign(
-        { username, role: 'ADMIN', tokenId: crypto.randomUUID() },
-        REFRESH_SECRET,
-        { expiresIn: REFRESH_EXPIRES }
-    );
-    
-    refreshTokens.set(refreshToken, {
-        username,
-        createdAt: new Date()
-    });
-    
-    res.json({
-        success: true,
-        accessToken,
-        refreshToken,
-        expiresIn: 15 * 60, // seconds
-        message: 'Login successful'
-    });
 });
 
-router.post('/refresh', (req, res) => {
+// Login (supports both email and legacy username)
+router.post('/login', async (req, res) => {
+    const { email, password, username } = req.body;
+    const loginId = email || username;
+    
+    // Legacy single-admin mode (fallback when no database)
+    if (!useDatabase()) {
+        const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+        const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || null;
+        
+        if (!loginId || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username and password required'
+            });
+        }
+        
+        if (loginId !== ADMIN_USERNAME) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid credentials'
+            });
+        }
+        
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+        
+        if (ADMIN_PASSWORD_HASH) {
+            const isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+            if (!isValid) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid credentials'
+                });
+            }
+        } else if (password !== adminPassword) {
+            if (process.env.NODE_ENV === 'production') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid credentials'
+                });
+            }
+        }
+        
+        const accessToken = jwt.sign(
+            { username: ADMIN_USERNAME, role: 'ADMIN' },
+            JWT_SECRET,
+            { expiresIn: ACCESS_EXPIRES }
+        );
+        
+        const refreshToken = jwt.sign(
+            { username: ADMIN_USERNAME, role: 'ADMIN', tokenId: crypto.randomUUID() },
+            REFRESH_SECRET,
+            { expiresIn: REFRESH_EXPIRES }
+        );
+        
+        refreshTokens.set(refreshToken, {
+            username: ADMIN_USERNAME,
+            createdAt: new Date()
+        });
+        
+        return res.json({
+            success: true,
+            accessToken,
+            refreshToken,
+            expiresIn: 15 * 60,
+            user: { email: ADMIN_USERNAME, role: 'ADMIN' }
+        });
+    }
+    
+    try {
+        const User = require('../models/MongoModel').User;
+        const user = await User.findOne({ email: loginId.toLowerCase() });
+        
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid credentials'
+            });
+        }
+        
+        // Check lockout
+        if (user.lockoutUntil && user.lockoutUntil > new Date()) {
+            return res.status(429).json({
+                success: false,
+                message: 'Account locked. Try again later.'
+            });
+        }
+        
+        const isValid = await bcrypt.compare(password, user.password);
+        
+        if (!isValid) {
+            user.failedLoginAttempts += 1;
+            if (user.failedLoginAttempts >= 5) {
+                user.lockoutUntil = new Date(Date.now() + 15 * 60 * 1000);
+            }
+            await user.save();
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid credentials'
+            });
+        }
+        
+        // Reset failed attempts on successful login
+        user.failedLoginAttempts = 0;
+        user.lockoutUntil = null;
+        user.lastLogin = new Date();
+        
+        // Generate tokens
+        const accessToken = jwt.sign(
+            { userId: user._id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: ACCESS_EXPIRES }
+        );
+        
+        const refreshToken = jwt.sign(
+            { userId: user._id, tokenId: crypto.randomUUID() },
+            REFRESH_SECRET,
+            { expiresIn: REFRESH_EXPIRES }
+        );
+        
+        // Store refresh token hash
+        user.refreshTokens.push({
+            token: hashToken(refreshToken),
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            userAgent: req.get('User-Agent') || '',
+            ip: req.ip
+        });
+        
+        await user.save();
+        
+        refreshTokens.set(refreshToken, { userId: user._id.toString() });
+        
+        res.json({
+            success: true,
+            accessToken,
+            refreshToken,
+            expiresIn: 15 * 60,
+            user: {
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                emailVerified: user.emailVerified
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Login failed'
+        });
+    }
+});
+
+// Email verification
+router.get('/verify-email', async (req, res) => {
+    const { token, signature } = req.query;
+    
+    if (!token || !signature) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid verification link'
+        });
+    }
+    
+    // Verify signature
+    const expectedSig = crypto.createHmac('sha256', JWT_SECRET)
+        .update(token).digest('hex');
+    
+    if (signature !== expectedSig) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid verification signature'
+        });
+    }
+    
+    try {
+        const User = require('../models/MongoModel').User;
+        const tokenHash = hashToken(token);
+        const stored = emailVerificationTokens.get(tokenHash);
+        
+        if (!stored || stored.expires < Date.now()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Verification token expired'
+            });
+        }
+        
+        const user = await User.findOneAndUpdate(
+            { email: stored.email },
+            { emailVerified: true },
+            { new: true }
+        );
+        
+        emailVerificationTokens.delete(tokenHash);
+        
+        res.json({
+            success: true,
+            message: 'Email verified successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Verification failed'
+        });
+    }
+});
+
+// Refresh token
+router.post('/refresh', async (req, res) => {
     const { refreshToken } = req.body;
     
     if (!refreshToken) {
@@ -86,17 +315,61 @@ router.post('/refresh', (req, res) => {
         });
     }
     
-    if (!refreshTokens.has(refreshToken)) {
-        return res.status(403).json({
-            success: false,
-            message: 'Invalid refresh token'
-        });
+    // Legacy mode
+    if (!useDatabase()) {
+        if (!refreshTokens.has(refreshToken)) {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid refresh token'
+            });
+        }
+        
+        try {
+            const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+            const newAccessToken = jwt.sign(
+                { username: decoded.username, role: 'admin' },
+                JWT_SECRET,
+                { expiresIn: ACCESS_EXPIRES }
+            );
+            
+            return res.json({
+                success: true,
+                accessToken: newAccessToken,
+                expiresIn: 15 * 60
+            });
+        } catch (error) {
+            refreshTokens.delete(refreshToken);
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid or expired refresh token'
+            });
+        }
     }
     
     try {
         const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+        const User = require('../models/MongoModel').User;
+        
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(403).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        
+        const tokenHash = hashToken(refreshToken);
+        const storedToken = user.refreshTokens.find(t => t.token === tokenHash);
+        
+        if (!storedToken || storedToken.expiresAt < new Date()) {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid or expired refresh token'
+            });
+        }
+        
         const newAccessToken = jwt.sign(
-            { username: decoded.username, role: 'admin' },
+            { userId: user._id, email: user.email, role: user.role },
             JWT_SECRET,
             { expiresIn: ACCESS_EXPIRES }
         );
@@ -107,14 +380,105 @@ router.post('/refresh', (req, res) => {
             expiresIn: 15 * 60
         });
     } catch (error) {
-        refreshTokens.delete(refreshToken);
-        return res.status(403).json({
+        res.status(403).json({
             success: false,
-            message: 'Invalid or expired refresh token'
+            message: 'Invalid refresh token'
         });
     }
 });
 
+// Password reset request
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            message: 'Email required'
+        });
+    }
+    
+    // Always return same response to prevent email enumeration
+    res.json({
+        success: true,
+        message: 'If email exists, reset link sent'
+    });
+    
+    try {
+        const User = require('../models/MongoModel').User;
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (user) {
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            passwordResetTokens.set(hashToken(resetToken), {
+                email: user.email,
+                expires: Date.now() + 60 * 60 * 1000
+            });
+            
+            await sendResetEmail(email, resetToken, user.name);
+        }
+    } catch (error) {
+        console.error('Password reset error:', error);
+    }
+});
+
+// Reset password
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+        return res.status(400).json({
+            success: false,
+            message: 'Token and new password required'
+        });
+    }
+    
+    const validation = validatePassword(newPassword);
+    if (!validation.valid) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password too weak'
+        });
+    }
+    
+    try {
+        const stored = passwordResetTokens.get(hashToken(token));
+        
+        if (!stored || stored.expires < Date.now()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid or expired token'
+            });
+        }
+        
+        const User = require('../models/MongoModel').User;
+        const passwordHash = await bcrypt.hash(newPassword, 12);
+        
+        await User.findOneAndUpdate(
+            { email: stored.email },
+            {
+                password: passwordHash,
+                refreshTokens: [], // Invalidate all sessions
+                failedLoginAttempts: 0,
+                lockoutUntil: null
+            }
+        );
+        
+        passwordResetTokens.delete(hashToken(token));
+        
+        res.json({
+            success: true,
+            message: 'Password reset successful'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Reset failed'
+        });
+    }
+});
+
+// Verify token
 router.post('/verify', (req, res) => {
     const { token } = req.body;
     
@@ -140,11 +504,26 @@ router.post('/verify', (req, res) => {
     }
 });
 
-router.post('/logout', (req, res) => {
+// Logout
+router.post('/logout', async (req, res) => {
     const { refreshToken } = req.body;
-    if (refreshToken) {
-        refreshTokens.delete(refreshToken);
+    
+    refreshTokens.delete(refreshToken);
+    
+    // Try database cleanup if connected
+    if (useDatabase() && refreshToken) {
+        try {
+            const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+            const User = require('../models/MongoModel').User;
+            
+            await User.findByIdAndUpdate(decoded.userId, {
+                $pull: { refreshTokens: { token: hashToken(refreshToken) } }
+            });
+        } catch (e) {
+            // Token invalid or user not found
+        }
     }
+    
     res.json({ success: true, message: 'Logged out' });
 });
 

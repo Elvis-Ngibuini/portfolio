@@ -73,6 +73,35 @@ const homeSchema = new mongoose.Schema({
     image: String
 });
 
+// User schema for admin accounts
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    name: { type: String, default: '' },
+    role: { 
+        type: String, 
+        enum: ['VIEWER', 'EDITOR', 'ADMIN', 'SUPER_ADMIN'], 
+        default: 'EDITOR' 
+    },
+    emailVerified: { type: Boolean, default: false },
+    totpSecret: String,
+    recoveryCodes: [String],
+    refreshTokens: [{
+        token: String,
+        expiresAt: Date,
+        userAgent: String,
+        ip: String
+    }],
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockoutUntil: Date,
+    lastLogin: Date,
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Indexes for performance
+userSchema.index({ email: 1 });
+userSchema.index({ 'refreshTokens.token': 1 });
+
 module.exports = {
     Project: mongoose.model('Project', projectSchema),
     Skill: mongoose.model('Skill', skillSchema),
@@ -81,5 +110,6 @@ module.exports = {
     Experience: mongoose.model('Experience', experienceSchema),
     Design: mongoose.model('Design', designSchema),
     Contact: mongoose.model('Contact', contactSchema),
-    Home: mongoose.model('Home', homeSchema)
+    Home: mongoose.model('Home', homeSchema),
+    User: mongoose.model('User', userSchema)
 };

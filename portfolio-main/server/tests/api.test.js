@@ -181,4 +181,29 @@ describe('Portfolio API', () => {
             expect([400, 403, 500]).toContain(res.statusCode);
         });
     });
+
+    describe('Registration and Password Recovery', () => {
+        test('POST /api/auth/register validates password strength', async () => {
+            const res = await request(app)
+                .post('/api/auth/register')
+                .send({ email: 'test@example.com', password: 'weak' });
+            expect(res.statusCode).toBe(400);
+            expect(res.body.message).toContain('weak');
+        });
+
+        test('POST /api/auth/forgot-password returns consistent response', async () => {
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: 'nonexistent@example.com' });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.message).toContain('If email exists');
+        });
+
+        test('POST /api/auth/reset-password requires token and password', async () => {
+            const res = await request(app)
+                .post('/api/auth/reset-password')
+                .send({ token: '' });
+            expect(res.statusCode).toBe(400);
+        });
+    });
 });

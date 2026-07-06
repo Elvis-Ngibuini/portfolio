@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Portfolio Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+        .auth-header { text-align: center; margin-bottom: 2rem; }
+        .auth-header h1 { color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input {
+            width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;
+            font-size: 1rem; transition: border-color 0.3s;
+        }
+        .form-group input:focus { outline: none; border-color: #00d4ff; }
+        .password-requirements { font-size: 0.8rem; color: #aaa; margin-top: 0.5rem; }
+        .password-requirements ul { margin-left: 1rem; margin-top: 0.25rem; }
+        .btn {
+            width: 100%; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #00d4ff 0%, #7928ca 100%);
+            color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,212,255,0.3); }
+        .auth-footer { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
+        .auth-footer a { color: #00d4ff; text-decoration: none; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+        .alert.error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); }
+        .alert.success { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><i class="fas fa-user-plus"></i> Register</h1>
+            <p>Create your admin account</p>
+        </div>
+        
+        <div id="alertBox" class="alert"></div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="">Full Name</label>
+                <input type="text" id="name" placeholder="Your Name">
+            </div>
+            
+            <div class="form-group">
+                <label for="">Email</label>
+                <input type="email" id="email" required placeholder="admin@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="">Password</label>
+                <input type="password" id="password" required placeholder="••••••••••••">
+                <div class="password-requirements">
+                    <small>Requirements:</small>
+                    <ul>
+                        <li>12+ characters</li>
+                        <li>Upper and lowercase letters</li>
+                        <li>Numbers and symbols</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="">Role (optional)</label>
+                <select id="role">
+                    <option value="EDITOR">Editor</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn">Register</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="admin.html">Sign in</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001/api' 
+            : '/api';
+        
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            const alertBox = document.getElementById('alertBox');
+            
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+                const data = await res.json();
+                
+                alertBox.style.display = 'block';
+                if (data.success) {
+                    alertBox.className = 'alert success';
+                    alertBox.textContent = data.message;
+                    setTimeout(() => window.location.href = 'admin.html', 3000);
+                } else {
+                    alertBox.className = 'alert error';
+                    alertBox.textContent = data.message;
+                }
+            } catch (error) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert error';
+                alertBox.textContent = 'Connection error';
+            }
+        });
+    </script>
+</body>
+</html>
