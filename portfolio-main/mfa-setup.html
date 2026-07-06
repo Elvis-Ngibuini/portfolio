@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup MFA - Portfolio Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .mfa-card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 500px;
+            backdrop-filter: blur(10px); text-align: center;
+        }
+        .mfa-header h1 { color: #00d4ff; margin-bottom: 1rem; }
+        .qr-container { margin: 2rem 0; padding: 1rem; background: #fff; border-radius: 8px; }
+        .secret-key { 
+            background: rgba(0,212,255,0.1); padding: 1rem; border-radius: 8px; 
+            font-family: monospace; font-size: 0.9rem; margin: 1rem 0; word-break: break-all;
+        }
+        .form-group { margin: 1rem 0; }
+        .form-group input {
+            width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;
+        }
+        .btn {
+            width: 100%; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #00d4ff 0%, #7928ca 100%);
+            color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+        }
+        .alert { padding: 1rem; border-radius: 8px; margin: 1rem 0; display: none; }
+        .alert.error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); }
+        .alert.success { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="mfa-card">
+        <div class="mfa-header">
+            <h1><i class="fas fa-shield-alt"></i> Multi-Factor Authentication</h1>
+            <p>Secure your admin account with TOTP</p>
+        </div>
+        
+        <div id="alertBox" class="alert"></div>
+        
+        <div id="setupStep">
+            <form id="setupForm">
+                <input type="email" id="email" placeholder="Your email" required>
+                <button type="submit" class="btn">Setup MFA</button>
+            </form>
+        </div>
+        
+        <div id="qrStep" class="hidden">
+            <div class="qr-container" id="qrContainer"></div>
+            <div class="secret-key" id="secretKey"></div>
+            <form id="verifyForm">
+                <div class="form-group">
+                    <input type="text" id="totpToken" placeholder="6-digit TOTP code" required>
+                </div>
+                <input type="hidden" id="totpSecret">
+                <button type="submit" class="btn">Verify & Activate</button>
+            </form>
+        </div>
+        
+        <div id="codesStep" class="hidden">
+            <h3>Recovery Codes</h3>
+            <p>Save these codes - they can unlock your account if you lose your device:</p>
+            <div id="recoveryCodes" style="font-family: monospace; margin: 1rem 0;"></div>
+            <button onclick="window.location.href='admin.html'" class="btn">Done</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001/api' 
+            : '/api';
+        
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            try {
+                const res = await fetch(`${API_BASE}/auth/setup-mfa`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('setupStep').classList.add('hidden');
+                    document.getElementById('qrStep').classList.remove('hidden');
+                    document.getElementById('qrContainer').innerHTML = `<img src="${data.qrCodeUrl}" alt="QR Code">`;
+                    document.getElementById('secretKey').textContent = data.secret;
+                    document.getElementById('totpSecret').value = data.secret;
+                }
+            } catch (error) {
+                showAlert('Failed to setup MFA', 'error');
+            }
+        });
+        
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const totpToken = document.getElementById('totpToken').value;
+            const secret = document.getElementById('totpSecret').value;
+            
+            try {
+                const res = await fetch(`${API_BASE}/auth/verify-mfa`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, totpToken, secret })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('qrStep').classList.add('hidden');
+                    document.getElementById('codesStep').classList.remove('hidden');
+                    document.getElementById('recoveryCodes').innerHTML = 
+                        data.recoveryCodes.map(c => `<div>${c}</div>`).join('');
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Verification failed', 'error');
+            }
+        });
+        
+        function showAlert(msg, type) {
+            const box = document.getElementById('alertBox');
+            box.className = `alert ${type}`;
+            box.textContent = msg;
+            box.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

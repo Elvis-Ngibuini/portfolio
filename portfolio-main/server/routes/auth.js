@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const router = express.Router();
 const { validatePassword, hashToken, sendVerificationEmail, sendResetEmail, generateRecoveryCodes } = require('../utils/auth-helpers');
+const { setupTOTP, verifyTOTP } = require('../utils/mfa');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.JWT_SECRET;
@@ -99,7 +100,7 @@ router.post('/register', async (req, res) => {
 
 // Login (supports both email and legacy username)
 router.post('/login', async (req, res) => {
-    const { email, password, username } = req.body;
+    const { email, password, username, totpToken, backupCode } = req.body;
     const loginId = email || username;
     
     // Legacy single-admin mode (fallback when no database)
@@ -162,7 +163,8 @@ router.post('/login', async (req, res) => {
             accessToken,
             refreshToken,
             expiresIn: 15 * 60,
-            user: { email: ADMIN_USERNAME, role: 'ADMIN' }
+            user: { email: ADMIN_USERNAME, role: 'ADMIN' },
+            mfaRequired: false
         });
     }
     
@@ -197,6 +199,38 @@ router.post('/login', async (req, res) => {
                 success: false,
                 message: 'Invalid credentials'
             });
+        }
+        
+        // MFA check
+        if (user.totpSecret) {
+            if (!totpToken && !backupCode) {
+                return res.json({
+                    success: true,
+                    mfaRequired: true,
+                    message: 'MFA code required'
+                });
+            }
+            
+            // Verify TOTP or backup code
+            let mfaValid = false;
+            if (totpToken) {
+                mfaValid = verifyTOTP(totpToken, user.totpSecret);
+            } else if (backupCode && user.recoveryCodes) {
+                mfaValid = user.recoveryCodes.includes(backupCode.toUpperCase());
+                if (mfaValid) {
+                    // Remove used backup code
+                    user.recoveryCodes = user.recoveryCodes.filter(c => c !== backupCode.toUpperCase());
+                }
+            }
+            
+            if (!mfaValid) {
+                user.failedLoginAttempts += 1;
+                await user.save();
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid MFA code'
+                });
+            }
         }
         
         // Reset failed attempts on successful login
@@ -475,6 +509,80 @@ router.post('/reset-password', async (req, res) => {
             success: false,
             message: 'Reset failed'
         });
+    }
+});
+
+// Setup TOTP (requires authentication)
+router.post('/setup-mfa', async (req, res) => {
+    const { email, totpToken } = req.body;
+    
+    if (!useDatabase()) {
+        return res.status(501).json({ success: false, message: 'MFA requires database' });
+    }
+    
+    try {
+        const User = require('../models/MongoModel').User;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        // If TOTP already set up, verify token to disable/regenerate
+        if (user.totpSecret && totpToken) {
+            if (!verifyTOTP(totpToken, user.totpSecret)) {
+                return res.status(401).json({ success: false, message: 'Invalid TOTP token' });
+            }
+            // Clear MFA
+            await User.findByIdAndUpdate(user._id, { totpSecret: null, recoveryCodes: [] });
+            return res.json({ success: true, message: 'MFA disabled' });
+        }
+        
+        // Generate new TOTP secret
+        const { secret, qrCodeUrl } = await setupTOTP(email);
+        
+        // Temporarily store (user must verify to activate)
+        res.json({
+            success: true,
+            secret,
+            qrCodeUrl,
+            message: 'Scan QR code and verify with /verify-mfa'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'MFA setup failed' });
+    }
+});
+
+// Verify and activate TOTP
+router.post('/verify-mfa', async (req, res) => {
+    const { email, totpToken, secret } = req.body;
+    
+    if (!secret || !totpToken) {
+        return res.status(400).json({ success: false, message: 'Secret and TOTP token required' });
+    }
+    
+    try {
+        const User = require('../models/MongoModel').User;
+        
+        // Verify the token against the secret
+        if (!verifyTOTP(totpToken, secret)) {
+            return res.status(400).json({ success: false, message: 'Invalid TOTP token' });
+        }
+        
+        // Activate MFA
+        const recoveryCodes = generateRecoveryCodes();
+        await User.findOneAndUpdate(
+            { email },
+            { totpSecret: secret, recoveryCodes }
+        );
+        
+        res.json({
+            success: true,
+            recoveryCodes,
+            message: 'MFA activated. Save these recovery codes!'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'MFA verification failed' });
     }
 });
 
