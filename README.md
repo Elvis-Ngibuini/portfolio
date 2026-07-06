@@ -40,9 +40,13 @@ Login at `portfolio-main/admin.html`:
 ## 🐳 Docker Deployment
 
 ```bash
-# Copy environment file
-copy .env.example .env
-# Edit .env with your secrets
+# Generate strong secrets
+node generate-secrets.js > .env
+
+# For production with Let's Encrypt
+echo "DOMAIN=yourdomain.com" >> .env
+echo "EMAIL=you@yourdomain.com" >> .env
+echo "STAGING=false" >> .env  # Remove for production
 
 # Build and run
 docker compose up -d
@@ -55,13 +59,14 @@ Access:
 
 ## 🔒 Security Features
 
-- JWT authentication with 8-hour expiry
+- JWT authentication with 8-hour expiry (configurable)
 - In-memory caching (5min TTL)
 - Security headers (CSP, HSTS, XSS protection)
 - Rate limiting (500 req/15min)
 - Input sanitization
 - File upload whitelist (jpg, png, gif, webp)
 - Structured security logging
+- Let's Encrypt SSL automation
 
 ## 🌐 GitHub
 

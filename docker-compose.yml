@@ -22,17 +22,24 @@ services:
       timeout: 3s
       retries: 3
 
+  # Production nginx with Let's Encrypt support
   frontend:
-    image: nginx:alpine
+    build:
+      context: ./portfolio-main
+      dockerfile: nginx/Dockerfile
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-}
+      - EMAIL=${EMAIL:-your-email@example.com}
+      - STAGING=${STAGING:-false}
     volumes:
       - ./portfolio-main:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    environment:
-      - NGINX_HOST=localhost
+      - ./ssl:/etc/nginx/ssl:rw
+      - ./certbot/www:/var/www/certbot:rw
+      - ./certbot/conf:/etc/letsencrypt:rw
     depends_on:
       - backend
     restart: unless-stopped
