@@ -45,6 +45,10 @@
         .search-box i { position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); color: #888; cursor: pointer; }
         .search-box i.clear { right: 1.8rem; cursor: pointer; }
         .search-box input:focus { outline: none; border-color: #667eea; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1rem; }
+        .pagination button { padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination button.active { background: #667eea; color: white; border-color: #667eea; }
         .btn {
             padding: 0.75rem 1.25rem; border: none; border-radius: 8px; cursor: pointer;
             font-size: 0.95rem; font-weight: 500; transition: all 0.3s;
@@ -317,7 +321,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('homeModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                    <button type="submit" class="btn btn-primary" id="saveHomeBtn" onclick="setLoading('saveHomeBtn', 'homeModal')"><i class="fas fa-save"></i> <span>Save</span></button>
                 </div>
             </form>
         </div>
@@ -380,7 +384,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('projectModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Project</button>
+                    <button type="submit" class="btn btn-primary" id="saveProjectBtn"><i class="fas fa-save"></i> <span>Save Project</span></button>
                 </div>
             </form>
         </div>
@@ -434,7 +438,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('graphicDesignModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Design</button>
+                    <button type="submit" class="btn btn-primary" id="saveGraphicDesignBtn"><i class="fas fa-save"></i> <span>Save Design</span></button>
                 </div>
             </form>
         </div>
@@ -472,7 +476,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('skillModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Skill</button>
+                    <button type="submit" class="btn btn-primary" id="saveSkillBtn"><i class="fas fa-save"></i> <span>Save Skill</span></button>
                 </div>
             </form>
         </div>
@@ -512,7 +516,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('challengeModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Challenge</button>
+                    <button type="submit" class="btn btn-primary" id="saveChallengeBtn"><i class="fas fa-save"></i> <span>Save Challenge</span></button>
                 </div>
             </form>
         </div>
@@ -547,7 +551,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('contributionModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contribution</button>
+                    <button type="submit" class="btn btn-primary" id="saveContributionBtn"><i class="fas fa-save"></i> <span>Save Contribution</span></button>
                 </div>
             </form>
         </div>
@@ -592,7 +596,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('experienceModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Experience</button>
+                    <button type="submit" class="btn btn-primary" id="saveExperienceBtn"><i class="fas fa-save"></i> <span>Save Experience</span></button>
                 </div>
             </form>
         </div>
@@ -630,7 +634,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('contactModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contact Info</button>
+                    <button type="submit" class="btn btn-primary" id="saveContactBtn"><i class="fas fa-save"></i> <span>Save Contact Info</span></button>
                 </div>
             </form>
         </div>
@@ -764,6 +768,39 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
+        function setSaving(btnId, isSaving) {
+            const btn = document.getElementById(btnId);
+            if (isSaving) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> <span>Save</span>';
+            }
+        }
+
+        function changePage(tableName, delta) {
+            if (typeof delta === 'number') {
+                PAGINATION.currentPage[tableName] = delta;
+            } else if (delta === -1 && PAGINATION.currentPage[tableName] > 1) {
+                PAGINATION.currentPage[tableName]--;
+            } else if (delta === +1) {
+                const allData = JSON.parse(sessionStorage.getItem('tableData_' + tableName) || '[]');
+                const totalPages = Math.ceil(allData.length / PAGINATION.itemsPerPage) || 1;
+                if (PAGINATION.currentPage[tableName] < totalPages) PAGINATION.currentPage[tableName]++;
+            }
+            const loadMap = {
+                projects: loadProjects, skills: loadSkills, challenges: loadChallenges,
+                contributions: loadContributions, experience: loadExperience, 'graphic-design': loadGraphicDesign
+            };
+            loadMap[tableName]();
+        }
+
+        const PAGINATION = {
+            currentPage: { projects: 1, skills: 1, challenges: 1, contributions: 1, experience: 1, 'graphic-design': 1 },
+            itemsPerPage: 10
+        };
+
         function handleSearch(tableName, query) {
             const tableId = tableName === 'graphic-design' ? 'graphicDesignTable' : 
                            tableName + 'Table';
@@ -880,11 +917,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
         }
 
         function renderProjectsTable(projects) {
+            sessionStorage.setItem('tableData_projects', JSON.stringify(projects));
+            const page = PAGINATION.currentPage.projects || 1;
+            const paginated = projects.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('projectsTable');
             if (!projects.length) {
                 table.innerHTML = '<div class="loading">No projects found. Click "Add Project" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(projects.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -898,7 +939,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${projects.map(p => `
+                        ${paginated.map(p => `
                             <tr>
                                 <td><strong>${p.title}</strong></td>
                                 <td>${p.category}</td>
@@ -917,15 +958,24 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="setPage('projects', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="setPage('projects', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="setPage('projects', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
         function renderDesignsTable(designs) {
+            sessionStorage.setItem('tableData_graphic-design', JSON.stringify(designs));
+            const page = PAGINATION.currentPage['graphic-design'] || 1;
+            const paginated = designs.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('graphicDesignTable');
             if (!designs.length) {
                 table.innerHTML = '<div class="loading">No designs found. Click "Add Design" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(designs.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -939,7 +989,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${designs.map(d => `
+                        ${paginated.map(d => `
                             <tr>
                                 <td><strong>${d.title}</strong></td>
                                 <td>${d.category}</td>
@@ -958,15 +1008,24 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="changePage('graphic-design', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('graphic-design', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="changePage('graphic-design', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
         function renderSkillsTable(skills) {
+            sessionStorage.setItem('tableData_skills', JSON.stringify(skills));
+            const page = PAGINATION.currentPage.skills || 1;
+            const paginated = skills.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('skillsTable');
             if (!skills.length) {
                 table.innerHTML = '<div class="loading">No skills found. Click "Add Skill" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(skills.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -978,7 +1037,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${skills.map(s => `
+                        ${paginated.map(s => `
                             <tr>
                                 <td>${s.category}</td>
                                 <td>${s.name}</td>
@@ -991,15 +1050,24 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="changePage('skills', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('skills', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="changePage('skills', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
         function renderChallengesTable(challenges) {
+            sessionStorage.setItem('tableData_challenges', JSON.stringify(challenges));
+            const page = PAGINATION.currentPage.challenges || 1;
+            const paginated = challenges.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('challengesTable');
             if (!challenges.length) {
                 table.innerHTML = '<div class="loading">No challenges found. Click "Add Challenge" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(challenges.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1010,7 +1078,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${challenges.map(c => `
+                        ${paginated.map(c => `
                             <tr>
                                 <td><strong>${c.title}</strong></td>
                                 <td>${c.date || '-'}</td>
@@ -1022,15 +1090,24 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="changePage('challenges', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('challenges', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="changePage('challenges', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
         function renderContributionsTable(contributions) {
+            sessionStorage.setItem('tableData_contributions', JSON.stringify(contributions));
+            const page = PAGINATION.currentPage.contributions || 1;
+            const paginated = contributions.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('contributionsTable');
             if (!contributions.length) {
                 table.innerHTML = '<div class="loading">No contributions found. Click "Add Contribution" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(contributions.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1041,7 +1118,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${contributions.map(c => `
+                        ${paginated.map(c => `
                             <tr>
                                 <td><strong>${c.title}</strong></td>
                                 <td>${c.date || '-'}</td>
@@ -1053,15 +1130,24 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="changePage('contributions', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('contributions', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="changePage('contributions', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
         function renderExperienceTable(experience) {
+            sessionStorage.setItem('tableData_experience', JSON.stringify(experience));
+            const page = PAGINATION.currentPage.experience || 1;
+            const paginated = experience.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('experienceTable');
             if (!experience.length) {
                 table.innerHTML = '<div class="loading">No experience found. Click "Add Experience" to get started!</div>';
                 return;
             }
+            const totalPages = Math.ceil(experience.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1073,7 +1159,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${experience.map(exp => `
+                        ${paginated.map(exp => `
                             <tr>
                                 <td><strong>${exp.company}</strong></td>
                                 <td>${exp.role}</td>
@@ -1086,6 +1172,11 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
+                <div class="pagination">
+                    <button onclick="changePage('experience', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('experience', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
+                    <button onclick="changePage('experience', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
@@ -1106,6 +1197,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveHome(e) {
             e.preventDefault();
+            setSaving('saveHomeBtn', true);
             const formData = new FormData();
             formData.append('name', document.getElementById('homeName').value);
             formData.append('title', document.getElementById('homeTitle').value);
@@ -1117,13 +1209,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: 'PUT', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
+                setSaving('saveHomeBtn', false);
                 if (data.success) {
                     closeModal('homeModal');
                     loadHome();
                     showNotification('Home page updated!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveHomeBtn', false);
                 showNotification('Error updating home page', 'error');
             }
         }
@@ -1193,6 +1286,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveProject(e) {
             e.preventDefault();
+            setSaving('saveProjectBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('projectTitle').value);
             formData.append('description', document.getElementById('projectDescription').value);
@@ -1212,13 +1306,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
+                setSaving('saveProjectBtn', false);
                 if (data.success) {
                     closeModal('projectModal');
                     loadProjects();
                     showNotification(id ? 'Project updated!' : 'Project created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveProjectBtn', false);
                 showNotification('Error saving project', 'error');
             }
         }
@@ -1301,6 +1396,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveGraphicDesign(e) {
             e.preventDefault();
+            setSaving('saveGraphicDesignBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('graphicDesignTitle').value);
             formData.append('description', document.getElementById('graphicDesignDescription').value);
@@ -1318,13 +1414,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
+                setSaving('saveGraphicDesignBtn', false);
                 if (data.success) {
                     closeModal('graphicDesignModal');
                     loadGraphicDesign();
                     showNotification(id ? 'Design updated!' : 'Design created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveGraphicDesignBtn', false);
                 showNotification('Error saving design', 'error');
             }
         }
@@ -1396,6 +1493,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveSkill(e) {
             e.preventDefault();
+            setSaving('saveSkillBtn', true);
             const skillData = {
                 category: document.getElementById('skillCategory').value,
                 name: document.getElementById('skillName').value,
@@ -1409,13 +1507,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     body: JSON.stringify(skillData)
                 });
                 const data = await res.json();
+                setSaving('saveSkillBtn', false);
                 if (data.success) {
                     closeModal('skillModal');
                     loadSkills();
                     showNotification(id ? 'Skill updated!' : 'Skill created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveSkillBtn', false);
                 showNotification('Error saving skill', 'error');
             }
         }
@@ -1494,6 +1593,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveChallenge(e) {
             e.preventDefault();
+            setSaving('saveChallengeBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('challengeTitle').value);
             formData.append('description', document.getElementById('challengeDescription').value);
@@ -1507,13 +1607,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
+                setSaving('saveChallengeBtn', false);
                 if (data.success) {
                     closeModal('challengeModal');
                     loadChallenges();
                     showNotification(id ? 'Challenge updated!' : 'Challenge created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveChallengeBtn', false);
                 showNotification('Error saving challenge', 'error');
             }
         }
@@ -1584,6 +1685,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveContribution(e) {
             e.preventDefault();
+            setSaving('saveContributionBtn', true);
             const contributionData = {
                 title: document.getElementById('contributionTitle').value,
                 description: document.getElementById('contributionDescription').value,
@@ -1598,13 +1700,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     body: JSON.stringify(contributionData)
                 });
                 const data = await res.json();
+                setSaving('saveContributionBtn', false);
                 if (data.success) {
                     closeModal('contributionModal');
                     loadContributions();
                     showNotification(id ? 'Contribution updated!' : 'Contribution created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveContributionBtn', false);
                 showNotification('Error saving contribution', 'error');
             }
         }
@@ -1679,6 +1782,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveExperience(e) {
             e.preventDefault();
+            setSaving('saveExperienceBtn', true);
             const expData = {
                 company: document.getElementById('experienceCompany').value,
                 role: document.getElementById('experienceRole').value,
@@ -1695,13 +1799,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     body: JSON.stringify(expData)
                 });
                 const data = await res.json();
+                setSaving('saveExperienceBtn', false);
                 if (data.success) {
                     closeModal('experienceModal');
                     loadExperience();
                     showNotification(id ? 'Experience updated!' : 'Experience created!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveExperienceBtn', false);
                 showNotification('Error saving experience', 'error');
             }
         }
@@ -1772,8 +1877,9 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
             document.getElementById('contactModal').classList.add('active');
         }
 
-        async function saveContact(e) {
+async function saveContact(e) {
             e.preventDefault();
+            setSaving('saveContactBtn', true);
             const contactData = {
                 email: document.getElementById('contactEmail').value,
                 phone: document.getElementById('contactPhone').value,
@@ -1781,20 +1887,21 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 github: document.getElementById('contactGithub').value,
                 whatsapp: document.getElementById('contactWhatsApp').value
             };
-try {
+            try {
                 const res = await fetch(`${API_BASE}/contact-info`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                     body: JSON.stringify(contactData)
                 });
                 const data = await res.json();
+                setSaving('saveContactBtn', false);
                 if (data.success) {
                     closeModal('contactModal');
                     loadContact();
                     showNotification('Contact info updated!', 'success');
                 }
             } catch (e) {
-                console.error(e);
+                setSaving('saveContactBtn', false);
                 showNotification('Error saving contact info', 'error');
             }
         }
