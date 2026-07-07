@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f0f2f5; color: #333; }
+        :root { --bg: #f0f2f5; --card-bg: white; --text: #333; --text-secondary: #666; --border: #eee; }
+        [data-theme="dark"] { --bg: #1a1a2e; --card-bg: #16213e; --text: #eee; --text-secondary: #aaa; --border: #333; }
+        body { background: var(--bg); color: var(--text); }
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white; padding: 1rem 2rem;
@@ -36,10 +38,14 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .card {
-            background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1.5rem; margin-bottom: 1.5rem;
+            background: var(--card-bg, white); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem; margin-bottom: 1.5rem; color: var(--text, #333);
         }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+        .tabs {
+            background: var(--card-bg, white); padding: 0.5rem; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap;
+        }
         .search-box { position: relative; }
         .search-box input { padding: 0.5rem 2.5rem 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; width: 250px; max-width: 100%; }
         .search-box i { position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); color: #888; cursor: pointer; }
@@ -70,9 +76,9 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white; border-radius: 12px; width: 90%; max-width: 800px;
+            background: var(--card-bg, white); border-radius: 12px; width: 90%; max-width: 800px;
             max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
+            animation: slideUp 0.3s ease; color: var(--text, #333);
         }
         .modal-header { padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; }
@@ -160,7 +166,10 @@
         <header class="header">
             <h1><i class="fas fa-cubes"></i> Portfolio Admin</h1>
             <div class="header-right">
-                <button class="logout-btn" onclick="logout()">
+                <button class="logout-btn" onclick="toggleDarkMode()" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="logout-btn" onclick="logout()" style="margin-left: 0.5rem;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
@@ -845,6 +854,22 @@
             sb.className = `snackbar show ${type}`;
             setTimeout(() => sb.className = 'snackbar', 3000);
         }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+            }
+        });
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
