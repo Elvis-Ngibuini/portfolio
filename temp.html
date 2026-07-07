@@ -39,16 +39,6 @@
             background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             padding: 1.5rem; margin-bottom: 1.5rem;
         }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .search-box { position: relative; }
-        .search-box input { padding: 0.5rem 2.5rem 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; width: 250px; max-width: 100%; }
-        .search-box i { position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); color: #888; cursor: pointer; }
-        .search-box i.clear { right: 1.8rem; cursor: pointer; }
-        .search-box input:focus { outline: none; border-color: #667eea; }
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1rem; }
-        .pagination button { padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; }
-        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .pagination button.active { background: #667eea; color: white; border-color: #667eea; }
         .btn {
             padding: 0.75rem 1.25rem; border: none; border-radius: 8px; cursor: pointer;
             font-size: 0.95rem; font-weight: 500; transition: all 0.3s;
@@ -77,11 +67,6 @@
         .modal-header { padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; }
         .modal-footer { padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem; }
-        .snackbar { position: fixed; bottom: 1rem; right: 1rem; background: #333; color: white; padding: 1rem 1.5rem; border-radius: 8px; display: none; align-items: center; gap: 1rem; z-index: 2000; }
-        .snackbar.show { display: flex; }
-        .snackbar.success { background: #10b981; }
-        .snackbar.error { background: #ef4444; }
-        .snackbar .undo-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer; }
         .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; transition: color 0.3s; }
         .form-group { margin-bottom: 1.25rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #444; }
@@ -192,13 +177,8 @@
             <!-- Projects Section -->
             <div id="projects" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-project-diagram"></i> Projects</h2>
-                        <div class="search-box">
-                            <input type="text" id="projectsSearch" placeholder="Search projects..." onkeyup="handleSearch('projects', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('projects')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openProjectModal()"><i class="fas fa-plus"></i> Add Project</button>
                     </div>
                     <div id="projectsTable" class="table-container"><div class="loading">Loading projects...</div></div>
@@ -208,13 +188,8 @@
             <!-- Graphic Design Section -->
             <div id="graphic-design" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-palette"></i> Graphic Design</h2>
-                        <div class="search-box">
-                            <input type="text" id="designsSearch" placeholder="Search designs..." onkeyup="handleSearch('graphic-design', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('graphic-design')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openGraphicDesignModal()"><i class="fas fa-plus"></i> Add Design</button>
                     </div>
                     <div id="graphicDesignTable" class="table-container"><div class="loading">Loading designs...</div></div>
@@ -224,13 +199,8 @@
             <!-- Skills Section -->
             <div id="skills" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-code"></i> Skills</h2>
-                        <div class="search-box">
-                            <input type="text" id="skillsSearch" placeholder="Search skills..." onkeyup="handleSearch('skills', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('skills')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openSkillModal()"><i class="fas fa-plus"></i> Add Skill</button>
                     </div>
                     <div id="skillsTable" class="table-container"><div class="loading">Loading skills...</div></div>
@@ -240,13 +210,8 @@
             <!-- Challenges Section -->
             <div id="challenges" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-shield-alt"></i> Challenges & Certifications</h2>
-                        <div class="search-box">
-                            <input type="text" id="challengesSearch" placeholder="Search challenges..." onkeyup="handleSearch('challenges', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('challenges')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openChallengeModal()"><i class="fas fa-plus"></i> Add Challenge</button>
                     </div>
                     <div id="challengesTable" class="table-container"><div class="loading">Loading challenges...</div></div>
@@ -256,13 +221,8 @@
             <!-- Contributions Section -->
             <div id="contributions" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-code-branch"></i> Contributions</h2>
-                        <div class="search-box">
-                            <input type="text" id="contributionsSearch" placeholder="Search contributions..." onkeyup="handleSearch('contributions', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('contributions')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openContributionModal()"><i class="fas fa-plus"></i> Add Contribution</button>
                     </div>
                     <div id="contributionsTable" class="table-container"><div class="loading">Loading contributions...</div></div>
@@ -272,13 +232,8 @@
             <!-- Experience Section -->
             <div id="experience" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="fas fa-briefcase"></i> Experience</h2>
-                        <div class="search-box">
-                            <input type="text" id="experienceSearch" placeholder="Search experience..." onkeyup="handleSearch('experience', this.value)">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-times clear" style="display: none;" onclick="clearSearch('experience')"></i>
-                        </div>
                         <button class="btn btn-primary" onclick="openExperienceModal()"><i class="fas fa-plus"></i> Add Experience</button>
                     </div>
                     <div id="experienceTable" class="table-container"><div class="loading">Loading experience...</div></div>
@@ -326,7 +281,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('homeModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveHomeBtn" onclick="setLoading('saveHomeBtn', 'homeModal')"><i class="fas fa-save"></i> <span>Save</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
                 </div>
             </form>
         </div>
@@ -389,7 +344,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('projectModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveProjectBtn"><i class="fas fa-save"></i> <span>Save Project</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Project</button>
                 </div>
             </form>
         </div>
@@ -443,7 +398,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('graphicDesignModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveGraphicDesignBtn"><i class="fas fa-save"></i> <span>Save Design</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Design</button>
                 </div>
             </form>
         </div>
@@ -481,7 +436,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('skillModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveSkillBtn"><i class="fas fa-save"></i> <span>Save Skill</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Skill</button>
                 </div>
             </form>
         </div>
@@ -521,7 +476,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('challengeModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveChallengeBtn"><i class="fas fa-save"></i> <span>Save Challenge</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Challenge</button>
                 </div>
             </form>
         </div>
@@ -556,7 +511,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('contributionModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveContributionBtn"><i class="fas fa-save"></i> <span>Save Contribution</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contribution</button>
                 </div>
             </form>
         </div>
@@ -601,7 +556,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('experienceModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveExperienceBtn"><i class="fas fa-save"></i> <span>Save Experience</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Experience</button>
                 </div>
             </form>
         </div>
@@ -639,7 +594,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('contactModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveContactBtn"><i class="fas fa-save"></i> <span>Save Contact Info</span></button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Contact Info</button>
                 </div>
             </form>
         </div>
@@ -754,13 +709,6 @@
             return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
         }
 
-        function showSnackbar(message, type = 'success') {
-            const sb = document.getElementById('snackbar');
-            document.getElementById('snackbarMsg').textContent = message;
-            sb.className = `snackbar show ${type}`;
-            setTimeout(() => sb.className = 'snackbar', 3000);
-        }
-        
         function showNotification(message, type = 'success') {
             const notif = document.createElement('div');
             notif.className = `notification ${type}`;
@@ -778,72 +726,6 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
-        }
-
-        function setSaving(btnId, isSaving) {
-            const btn = document.getElementById(btnId);
-            if (isSaving) {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Saving...';
-            } else {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> <span>Save</span>';
-            }
-        }
-
-        function changePage(tableName, delta) {
-            if (typeof delta === 'number') {
-                PAGINATION.currentPage[tableName] = delta;
-            } else if (delta === -1 && PAGINATION.currentPage[tableName] > 1) {
-                PAGINATION.currentPage[tableName]--;
-            } else if (delta === +1) {
-                const allData = JSON.parse(sessionStorage.getItem('tableData_' + tableName) || '[]');
-                const totalPages = Math.ceil(allData.length / PAGINATION.itemsPerPage) || 1;
-                if (PAGINATION.currentPage[tableName] < totalPages) PAGINATION.currentPage[tableName]++;
-            }
-            const loadMap = {
-                projects: loadProjects, skills: loadSkills, challenges: loadChallenges,
-                contributions: loadContributions, experience: loadExperience, 'graphic-design': loadGraphicDesign
-            };
-            loadMap[tableName]();
-        }
-
-        const PAGINATION = {
-            currentPage: { projects: 1, skills: 1, challenges: 1, contributions: 1, experience: 1, 'graphic-design': 1 },
-            itemsPerPage: 10
-        };
-
-        function handleSearch(tableName, query) {
-            const tableId = tableName === 'graphic-design' ? 'graphicDesignTable' : 
-                           tableName + 'Table';
-            const table = document.getElementById(tableId);
-            const rows = table.querySelectorAll('tbody tr');
-            const searchBox = event.target.closest('.search-box');
-            const clearIcon = searchBox.querySelector('.fa-times');
-            
-            clearIcon.style.display = query ? 'block' : 'none';
-            query = query.toLowerCase();
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        }
-        
-        function clearSearch(tableName) {
-            const searchInputId = tableName === 'graphic-design' ? 'designsSearch' : 
-                                tableName + 'Search';
-            const searchInput = document.getElementById(searchInputId);
-            searchInput.value = '';
-            searchInput.closest('.search-box').querySelector('.fa-times').style.display = 'none';
-            handleSearch(tableName, '');
-        }
-
-        function showSnackbar(msg, type = 'success') {
-            const sb = document.getElementById('snackbar');
-            document.getElementById('snackbarMsg').textContent = msg;
-            sb.className = `snackbar show ${type}`;
-            setTimeout(() => sb.className = 'snackbar', 3000);
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -936,15 +818,11 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
         }
 
         function renderProjectsTable(projects) {
-            sessionStorage.setItem('tableData_projects', JSON.stringify(projects));
-            const page = PAGINATION.currentPage.projects || 1;
-            const paginated = projects.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('projectsTable');
             if (!projects.length) {
                 table.innerHTML = '<div class="loading">No projects found. Click "Add Project" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(projects.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -958,7 +836,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(p => `
+                        ${projects.map(p => `
                             <tr>
                                 <td><strong>${p.title}</strong></td>
                                 <td>${p.category}</td>
@@ -977,24 +855,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="setPage('projects', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="setPage('projects', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="setPage('projects', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
         function renderDesignsTable(designs) {
-            sessionStorage.setItem('tableData_graphic-design', JSON.stringify(designs));
-            const page = PAGINATION.currentPage['graphic-design'] || 1;
-            const paginated = designs.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('graphicDesignTable');
             if (!designs.length) {
                 table.innerHTML = '<div class="loading">No designs found. Click "Add Design" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(designs.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1008,7 +877,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(d => `
+                        ${designs.map(d => `
                             <tr>
                                 <td><strong>${d.title}</strong></td>
                                 <td>${d.category}</td>
@@ -1027,24 +896,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="changePage('graphic-design', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('graphic-design', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="changePage('graphic-design', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
         function renderSkillsTable(skills) {
-            sessionStorage.setItem('tableData_skills', JSON.stringify(skills));
-            const page = PAGINATION.currentPage.skills || 1;
-            const paginated = skills.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('skillsTable');
             if (!skills.length) {
                 table.innerHTML = '<div class="loading">No skills found. Click "Add Skill" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(skills.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1056,7 +916,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(s => `
+                        ${skills.map(s => `
                             <tr>
                                 <td>${s.category}</td>
                                 <td>${s.name}</td>
@@ -1069,24 +929,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="changePage('skills', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('skills', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="changePage('skills', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
         function renderChallengesTable(challenges) {
-            sessionStorage.setItem('tableData_challenges', JSON.stringify(challenges));
-            const page = PAGINATION.currentPage.challenges || 1;
-            const paginated = challenges.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('challengesTable');
             if (!challenges.length) {
                 table.innerHTML = '<div class="loading">No challenges found. Click "Add Challenge" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(challenges.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1097,7 +948,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(c => `
+                        ${challenges.map(c => `
                             <tr>
                                 <td><strong>${c.title}</strong></td>
                                 <td>${c.date || '-'}</td>
@@ -1109,24 +960,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="changePage('challenges', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('challenges', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="changePage('challenges', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
         function renderContributionsTable(contributions) {
-            sessionStorage.setItem('tableData_contributions', JSON.stringify(contributions));
-            const page = PAGINATION.currentPage.contributions || 1;
-            const paginated = contributions.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('contributionsTable');
             if (!contributions.length) {
                 table.innerHTML = '<div class="loading">No contributions found. Click "Add Contribution" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(contributions.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1137,7 +979,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(c => `
+                        ${contributions.map(c => `
                             <tr>
                                 <td><strong>${c.title}</strong></td>
                                 <td>${c.date || '-'}</td>
@@ -1149,24 +991,15 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="changePage('contributions', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('contributions', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="changePage('contributions', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
         function renderExperienceTable(experience) {
-            sessionStorage.setItem('tableData_experience', JSON.stringify(experience));
-            const page = PAGINATION.currentPage.experience || 1;
-            const paginated = experience.slice((page - 1) * PAGINATION.itemsPerPage, page * PAGINATION.itemsPerPage);
             const table = document.getElementById('experienceTable');
             if (!experience.length) {
                 table.innerHTML = '<div class="loading">No experience found. Click "Add Experience" to get started!</div>';
                 return;
             }
-            const totalPages = Math.ceil(experience.length / PAGINATION.itemsPerPage);
             table.innerHTML = `
                 <table>
                     <thead>
@@ -1178,7 +1011,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${paginated.map(exp => `
+                        ${experience.map(exp => `
                             <tr>
                                 <td><strong>${exp.company}</strong></td>
                                 <td>${exp.role}</td>
@@ -1191,11 +1024,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <button onclick="changePage('experience', -1)" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                    ${Array.from({ length: totalPages }, (_, i) => `<button onclick="changePage('experience', ${i + 1})" class="${page === i + 1 ? 'active' : ''}">${i + 1}</button>`).join('')}
-                    <button onclick="changePage('experience', +1)" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                </div>
             `;
         }
 
@@ -1216,7 +1044,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveHome(e) {
             e.preventDefault();
-            setSaving('saveHomeBtn', true);
             const formData = new FormData();
             formData.append('name', document.getElementById('homeName').value);
             formData.append('title', document.getElementById('homeTitle').value);
@@ -1228,15 +1055,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: 'PUT', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
-                setSaving('saveHomeBtn', false);
                 if (data.success) {
                     closeModal('homeModal');
                     loadHome();
-                    showSnackbar('Home page updated!', 'success');
+                    showNotification('Home page updated!', 'success');
                 }
             } catch (e) {
-                setSaving('saveHomeBtn', false);
-                showSnackbar('Error updating home page', 'error');
+                console.error(e);
+                showNotification('Error updating home page', 'error');
             }
         }
 
@@ -1305,7 +1131,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveProject(e) {
             e.preventDefault();
-            setSaving('saveProjectBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('projectTitle').value);
             formData.append('description', document.getElementById('projectDescription').value);
@@ -1325,15 +1150,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
-                setSaving('saveProjectBtn', false);
                 if (data.success) {
                     closeModal('projectModal');
                     loadProjects();
-                    showSnackbar(id ? 'Project updated!' : 'Project created!', 'success');
+                    showNotification(id ? 'Project updated!' : 'Project created!', 'success');
                 }
             } catch (e) {
-                setSaving('saveProjectBtn', false);
-                showSnackbar('Error saving project', 'error');
+                console.error(e);
+                showNotification('Error saving project', 'error');
             }
         }
 
@@ -1350,8 +1174,8 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
             try {
                 const res = await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadProjects(); showSnackbar('Project deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting project', 'error'); }
+                if (data.success) { loadProjects(); showNotification('Project deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadGraphicDesign() {
@@ -1415,7 +1239,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
         async function saveGraphicDesign(e) {
             e.preventDefault();
-            setSaving('saveGraphicDesignBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('graphicDesignTitle').value);
             formData.append('description', document.getElementById('graphicDesignDescription').value);
@@ -1433,15 +1256,14 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
-                setSaving('saveGraphicDesignBtn', false);
                 if (data.success) {
                     closeModal('graphicDesignModal');
                     loadGraphicDesign();
-showSnackbar(id ? 'Design updated!' : 'Design created!', 'success');
+                    showNotification(id ? 'Design updated!' : 'Design created!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving design', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving design', 'error');
             }
         }
 
@@ -1458,8 +1280,8 @@ showSnackbar(id ? 'Design updated!' : 'Design created!', 'success');
             try {
                 const res = await fetch(`${API_BASE}/graphic-design/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadGraphicDesign(); showSnackbar('Design deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting design', 'error'); }
+                if (data.success) { loadGraphicDesign(); showNotification('Design deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadSkills() {
@@ -1512,7 +1334,6 @@ showSnackbar(id ? 'Design updated!' : 'Design created!', 'success');
 
         async function saveSkill(e) {
             e.preventDefault();
-            setSaving('saveSkillBtn', true);
             const skillData = {
                 category: document.getElementById('skillCategory').value,
                 name: document.getElementById('skillName').value,
@@ -1526,15 +1347,14 @@ showSnackbar(id ? 'Design updated!' : 'Design created!', 'success');
                     body: JSON.stringify(skillData)
                 });
                 const data = await res.json();
-                setSaving('saveSkillBtn', false);
                 if (data.success) {
                     closeModal('skillModal');
                     loadSkills();
-showSnackbar(id ? 'Skill updated!' : 'Skill created!', 'success');
+                    showNotification(id ? 'Skill updated!' : 'Skill created!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving skill', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving skill', 'error');
             }
         }
 
@@ -1551,8 +1371,8 @@ showSnackbar(id ? 'Skill updated!' : 'Skill created!', 'success');
             try {
                 const res = await fetch(`${API_BASE}/skills/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadSkills(); showSnackbar('Skill deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting skill', 'error'); }
+                if (data.success) { loadSkills(); showNotification('Skill deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadChallenges() {
@@ -1612,7 +1432,6 @@ showSnackbar(id ? 'Skill updated!' : 'Skill created!', 'success');
 
         async function saveChallenge(e) {
             e.preventDefault();
-            setSaving('saveChallengeBtn', true);
             const formData = new FormData();
             formData.append('title', document.getElementById('challengeTitle').value);
             formData.append('description', document.getElementById('challengeDescription').value);
@@ -1626,15 +1445,14 @@ showSnackbar(id ? 'Skill updated!' : 'Skill created!', 'success');
                     method: id ? 'PUT' : 'POST', body: formData, headers: { ...getAuthHeaders() }
                 });
                 const data = await res.json();
-                setSaving('saveChallengeBtn', false);
                 if (data.success) {
                     closeModal('challengeModal');
                     loadChallenges();
-showSnackbar(id ? 'Challenge updated!' : 'Challenge created!', 'success');
+                    showNotification(id ? 'Challenge updated!' : 'Challenge created!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving challenge', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving challenge', 'error');
             }
         }
 
@@ -1651,8 +1469,8 @@ showSnackbar(id ? 'Challenge updated!' : 'Challenge created!', 'success');
             try {
                 const res = await fetch(`${API_BASE}/challenges/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadChallenges(); showSnackbar('Challenge deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting challenge', 'error'); }
+                if (data.success) { loadChallenges(); showNotification('Challenge deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadContributions() {
@@ -1704,7 +1522,6 @@ showSnackbar(id ? 'Challenge updated!' : 'Challenge created!', 'success');
 
         async function saveContribution(e) {
             e.preventDefault();
-            setSaving('saveContributionBtn', true);
             const contributionData = {
                 title: document.getElementById('contributionTitle').value,
                 description: document.getElementById('contributionDescription').value,
@@ -1719,15 +1536,14 @@ showSnackbar(id ? 'Challenge updated!' : 'Challenge created!', 'success');
                     body: JSON.stringify(contributionData)
                 });
                 const data = await res.json();
-                setSaving('saveContributionBtn', false);
                 if (data.success) {
                     closeModal('contributionModal');
                     loadContributions();
-showSnackbar(id ? 'Contribution updated!' : 'Contribution created!', 'success');
+                    showNotification(id ? 'Contribution updated!' : 'Contribution created!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving contribution', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving contribution', 'error');
             }
         }
 
@@ -1744,8 +1560,8 @@ showSnackbar(id ? 'Contribution updated!' : 'Contribution created!', 'success');
             try {
                 const res = await fetch(`${API_BASE}/contributions/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadContributions(); showSnackbar('Contribution deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting contribution', 'error'); }
+                if (data.success) { loadContributions(); showNotification('Contribution deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadExperience() {
@@ -1801,7 +1617,6 @@ showSnackbar(id ? 'Contribution updated!' : 'Contribution created!', 'success');
 
         async function saveExperience(e) {
             e.preventDefault();
-            setSaving('saveExperienceBtn', true);
             const expData = {
                 company: document.getElementById('experienceCompany').value,
                 role: document.getElementById('experienceRole').value,
@@ -1818,15 +1633,14 @@ showSnackbar(id ? 'Contribution updated!' : 'Contribution created!', 'success');
                     body: JSON.stringify(expData)
                 });
                 const data = await res.json();
-                setSaving('saveExperienceBtn', false);
                 if (data.success) {
                     closeModal('experienceModal');
                     loadExperience();
-showSnackbar(id ? 'Experience updated!' : 'Experience created!', 'success');
+                    showNotification(id ? 'Experience updated!' : 'Experience created!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving experience', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving experience', 'error');
             }
         }
 
@@ -1838,13 +1652,13 @@ showSnackbar(id ? 'Experience updated!' : 'Experience created!', 'success');
             } catch (e) { console.error(e); }
         }
 
-async function deleteExperience(id) {
-            if (!confirm('Are you sure you want to delete this experience entry?')) return;
+        async function deleteExperience(id) {
+            if (!confirm('Are you sure you want to delete this experience?')) return;
             try {
                 const res = await fetch(`${API_BASE}/experience/${id}`, { method: 'DELETE', headers: { ...getAuthHeaders() } });
                 const data = await res.json();
-                if (data.success) { loadExperience(); showSnackbar('Experience deleted', 'success'); }
-            } catch (e) { showSnackbar('Error deleting experience', 'error'); }
+                if (data.success) { loadExperience(); showNotification('Experience deleted!', 'success'); }
+            } catch (e) { console.error(e); }
         }
 
         async function loadContact() {
@@ -1896,9 +1710,8 @@ async function deleteExperience(id) {
             document.getElementById('contactModal').classList.add('active');
         }
 
-async function saveContact(e) {
+        async function saveContact(e) {
             e.preventDefault();
-            setSaving('saveContactBtn', true);
             const contactData = {
                 email: document.getElementById('contactEmail').value,
                 phone: document.getElementById('contactPhone').value,
@@ -1906,22 +1719,21 @@ async function saveContact(e) {
                 github: document.getElementById('contactGithub').value,
                 whatsapp: document.getElementById('contactWhatsApp').value
             };
-            try {
+try {
                 const res = await fetch(`${API_BASE}/contact-info`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                     body: JSON.stringify(contactData)
                 });
                 const data = await res.json();
-                setSaving('saveContactBtn', false);
                 if (data.success) {
                     closeModal('contactModal');
                     loadContact();
-showSnackbar('Contact info updated!', 'success');
+                    showNotification('Contact info updated!', 'success');
                 }
             } catch (e) {
-                showSnackbar('Error saving contact info', 'error');
-            }
+                console.error(e);
+                showNotification('Error saving contact info', 'error');
             }
         }
 
@@ -1933,13 +1745,10 @@ document.addEventListener('DOMContentLoaded', async () => {
              }
              if (checkAuthentication()) {
                  document.getElementById('loginModal').style.display = 'none';
-document.getElementById('mainContent').style.display = 'block';
-                  initAdmin();
-              }
-        });
+                 document.getElementById('mainContent').style.display = 'block';
+                 initAdmin();
+             }
+         });
     </script>
-    <div id="snackbar" class="snackbar">
-        <span id="snackbarMsg"></span>
-    </div>
 </body>
 </html>
