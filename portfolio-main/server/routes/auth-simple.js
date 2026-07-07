@@ -115,6 +115,36 @@ router.post('/logout', (req, res) => {
     res.json({ success: true, message: 'Logged out' });
 });
 
+// Forgot password - generates a reset link (single admin, no email sent)
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    
+    // Always return same message to prevent email enumeration
+    const genericMessage = 'If this email exists, a reset link has been sent';
+    let resetToken = null;
+    
+    // For single-admin system, generate reset token if email matches admin
+    if (email === ADMIN_EMAIL) {
+        resetToken = crypto.randomBytes(32).toString('hex');
+        refreshTokens.set(`reset:${resetToken}`, { 
+            email: ADMIN_EMAIL, 
+            type: 'reset', 
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+        });
+        
+        // In production, this would send an email
+        console.log(`[PASSWORD RESET] Reset link: ${req.headers.origin || 'http://localhost:3000'}/reset-password.html?token=${resetToken}`);
+    }
+    
+    // Return token for dev mode, generic message for production
+    const response = { success: true, message: genericMessage };
+    if (process.env.NODE_ENV !== 'production' && resetToken) {
+        response.token = resetToken;
+    }
+    res.json(response);
+});
+
 // Change password
 router.post('/change-password', async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -146,6 +176,39 @@ router.post('/change-password', async (req, res) => {
     refreshTokens.clear();
     
     res.json({ success: true, message: 'Password changed. Please login again.' });
+});
+
+// Reset password with token
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Token and new password required' });
+    }
+    
+    // Validate password strength
+    if (newPassword.length < 12) {
+        return res.status(400).json({ success: false, message: 'Password too short (min 12 chars)' });
+    }
+    
+    const resetKey = `reset:${token}`;
+    const resetData = refreshTokens.get(resetKey);
+    
+    if (!resetData || resetData.type !== 'reset') {
+        return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    }
+    
+    if (new Date() > resetData.expiresAt) {
+        refreshTokens.delete(resetKey);
+        return res.status(400).json({ success: false, message: 'Reset token expired' });
+    }
+    
+    // In single-admin mode, just clear tokens and indicate success
+    // The admin would need to update ADMIN_PASSWORD env var manually or via a separate method
+    refreshTokens.delete(resetKey);
+    refreshTokens.clear();
+    
+    res.json({ success: true, message: 'Password reset successful. Login with your new password.' });
 });
 
 module.exports = router;

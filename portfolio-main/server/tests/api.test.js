@@ -93,6 +93,23 @@ describe('Portfolio API', () => {
             expect(res.statusCode).toBe(200);
             expect(res.body.message).toBe('Logged out');
         });
+
+        test('POST /api/auth/forgot-password returns success', async () => {
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: 'admin@example.com' });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+            expect(res.body.token).toBeDefined();
+        });
+
+        test('POST /api/auth/forgot-password prevents email enumeration', async () => {
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: 'nonexistent@example.com' });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+        });
     });
 
     describe('Protected Endpoints', () => {
