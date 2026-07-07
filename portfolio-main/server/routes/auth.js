@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const { validatePassword, hashToken, sendVerificationEmail, sendResetEmail, generateRecoveryCodes } = require('../utils/auth-helpers');
 const { setupTOTP, verifyTOTP } = require('../utils/mfa');
+const { initRedis, storeRefreshToken: redisStoreToken, deleteRefreshToken: redisDeleteToken } = require('../utils/token-store');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.JWT_SECRET;
@@ -17,7 +18,8 @@ const refreshTokens = new Map();
 const emailVerificationTokens = new Map();
 const passwordResetTokens = new Map();
 
-// Helper to check if using database
+// Initialize Redis on module load
+const redisReady = initRedis();
 function useDatabase() {
     // Check if MongoDB is actually connected
     try {
@@ -260,6 +262,11 @@ router.post('/login', async (req, res) => {
         });
         
         await user.save();
+        
+        // Also store in Redis if available
+        if (redisReady) {
+            redisStoreToken(refreshToken, user._id.toString()).catch(console.error);
+        }
         
         refreshTokens.set(refreshToken, { userId: user._id.toString() });
         
@@ -618,7 +625,7 @@ router.post('/logout', async (req, res) => {
     
     refreshTokens.delete(refreshToken);
     
-    // Try database cleanup if connected
+    // Cleanup database
     if (useDatabase() && refreshToken) {
         try {
             const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
@@ -630,6 +637,14 @@ router.post('/logout', async (req, res) => {
         } catch (e) {
             // Token invalid or user not found
         }
+    }
+    
+    // Cleanup Redis if available
+    if (redisReady && refreshToken) {
+        try {
+            const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+            redisDeleteToken(refreshToken, decoded.userId).catch(console.error);
+        } catch (e) {}
     }
     
     res.json({ success: true, message: 'Logged out' });
