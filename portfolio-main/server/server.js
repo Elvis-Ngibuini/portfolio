@@ -17,6 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const STORAGE_DIR = path.join(__dirname, 'storage');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const HTML_DIR = path.join(__dirname, '..');
 
 // In-memory cache with 5min TTL
 const cache = new Map();
@@ -124,6 +125,14 @@ const upload = multer({
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(UPLOADS_DIR));
+
+// Serve static HTML files (for dev/testing)
+app.get('/', (req, res) => res.sendFile(path.join(HTML_DIR, 'index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(HTML_DIR, 'admin.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(HTML_DIR, 'admin.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(HTML_DIR, 'login.html')));
+app.get('/forgot-password.html', (req, res) => res.sendFile(path.join(HTML_DIR, 'forgot-password.html')));
+app.get('/reset-password.html', (req, res) => res.sendFile(path.join(HTML_DIR, 'reset-password.html')));
 
 // Security headers middleware
 app.use(helmet({

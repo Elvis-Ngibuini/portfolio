@@ -28,8 +28,7 @@ services:
       context: ./portfolio-main
       dockerfile: nginx/Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
+      - "3001:3001"
     environment:
       - DOMAIN=${DOMAIN:-}
       - EMAIL=${EMAIL:-your-email@example.com}
