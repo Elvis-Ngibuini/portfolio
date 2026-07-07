@@ -89,10 +89,12 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .modal-overlay { display: none; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         #loginModal { display: flex; }
         .modal-overlay { display: none; align-items: center; justify-content: center; }
+        .spinner { animation: spin 1s linear infinite; display: none; }
         .image-preview { max-width: 200px; max-height: 200px; margin-top: 0.5rem; border-radius: 8px; border: 1px solid #eee; }
         .tech-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
         .tech-tag { background: #f0f2f5; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.85rem; }
@@ -112,20 +114,29 @@
             </div>
             <div class="modal-body">
                 <p style="margin-bottom: 1.5rem; color: #666;">Enter credentials to access the dashboard.</p>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label for="adminEmail">Email</label>
-                    <input type="email" id="adminEmail" placeholder="admin@example.com" required>
+                    <input type="email" id="adminEmail" placeholder="admin@example.com" required autocomplete="email">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label for="adminPassword">Password</label>
-                    <input type="password" id="adminPassword" placeholder="Password" required>
+                    <input type="password" id="adminPassword" placeholder="Password" required minlength="8" autocomplete="current-password">
+                    <span style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: #888;" onclick="toggleAdminPassword()">
+                        <i class="far fa-eye" id="adminToggleIcon"></i>
+                    </span>
                 </div>
-                <div id="loginError" class="error" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px;">
+                <div id="loginError" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px;">
                     <i class="fas fa-exclamation-circle"></i> <span id="loginErrorText">Invalid credentials. Please try again.</span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="btn btn-primary" id="loginBtn" onclick="login()">
+                    <span id="loginBtnText"><i class="fas fa-sign-in-alt"></i> Login</span>
+                    <i id="loginSpinner" class="fas fa-spinner" style="display: none;"></i>
+                </button>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="forgot-password.html" style="color: #667eea; font-size: 0.9rem;">Forgot password?</a>
             </div>
         </div>
     </div>
@@ -630,6 +641,9 @@
         }
         
         async function login() {
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginBtnText');
+            const spinner = document.getElementById('loginSpinner');
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             
@@ -638,6 +652,11 @@
                 document.getElementById('loginError').style.display = 'block';
                 return;
             }
+            
+            btn.disabled = true;
+            btnText.style.display = 'inline';
+            spinner.style.display = 'inline-block';
+            spinner.style.marginLeft = '0.5rem';
             
             try {
                 const res = await fetch(`${API_BASE}/auth/login`, {
@@ -668,6 +687,8 @@
                 document.getElementById('loginErrorText').textContent = 'Connection error. Is the backend running?';
                 document.getElementById('loginError').style.display = 'block';
             }
+            
+            btn.disabled = false;
         }
         
         function logout() {
@@ -694,6 +715,13 @@
             notif.textContent = message;
             document.body.appendChild(notif);
             setTimeout(() => notif.remove(), 3000);
+        }
+        
+        function toggleAdminPassword() {
+            const password = document.getElementById('adminPassword');
+            const icon = document.getElementById('adminToggleIcon');
+            password.type = password.type === 'password' ? 'text' : 'password';
+            icon.className = password.type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
         }
 
         function closeModal(modalId) {
