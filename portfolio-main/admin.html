@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
     <style>
+        /* Inline styles for dynamic content */
+        .tech-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .tech-tag { background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; }
+        [data-theme="dark"] .tech-tag { background: #8b5cf6; }
+    </style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         :root { --bg: #f0f2f5; --card-bg: white; --text: #333; --text-secondary: #666; --border: #eee; }
         [data-theme="dark"] { --bg: #1a1a2e; --card-bg: #16213e; --text: #eee; --text-secondary: #aaa; --border: #333; }
@@ -188,6 +194,7 @@
                 <button class="tab-btn" data-tab="contributions"><i class="fas fa-code-branch"></i> Contributions</button>
                 <button class="tab-btn" data-tab="experience"><i class="fas fa-briefcase"></i> Experience</button>
                 <button class="tab-btn" data-tab="contact"><i class="fas fa-address-book"></i> Contact</button>
+                <button class="tab-btn" data-tab="analytics"><i class="fas fa-chart-line"></i> Analytics</button>
             </div>
 
             <!-- Home Section -->
@@ -304,6 +311,17 @@
                     <div id="contactContent" class="loading">Loading...</div>
                     <div style="margin-top: 1rem;">
                         <button class="btn btn-primary" onclick="editContact()"><i class="fas fa-edit"></i> Edit Contact Info</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics" class="tab-content">
+                <div class="card">
+                    <h2><i class="fas fa-chart-line"></i> Visitor Analytics</h2>
+                    <div id="analyticsContent" class="loading">Loading analytics...</div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-success" onclick="loadAnalytics()"><i class="fas fa-sync"></i> Refresh</button>
                     </div>
                 </div>
             </div>
@@ -1953,6 +1971,33 @@ async function deleteExperience(id) {
                     `;
                 }
             } catch (e) { console.error(e); }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const res = await fetch(`${API_BASE}/analytics`);
+                const data = await res.json();
+                if (data.success) {
+                    const div = document.getElementById('analyticsContent');
+                    const a = data.analytics;
+                    div.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                                <h4>Total Page Views</h4>
+                                <p style="font-size: 2rem; font-weight: bold; color: #667eea;">${a.totalViews || 0}</p>
+                            </div>
+                            ${Object.entries(a.pageViews || {}).map(([page, count]) => `
+                                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <strong>${page}</strong>
+                                    <p style="color: #888;">${count} views</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                showSnackbar('Error loading analytics', 'error');
+            }
         }
 
         async function editContact() {
