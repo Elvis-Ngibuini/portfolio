@@ -18,22 +18,29 @@
         }
         .auth-header { text-align: center; margin-bottom: 2rem; }
         .auth-header h1 { color: #00d4ff; font-size: 2rem; margin-bottom: 0.5rem; }
-        .form-group { margin-bottom: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; position: relative; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         .form-group input {
             width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;
+            border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem;
         }
         .form-group input:focus { outline: none; border-color: #00d4ff; }
+        .password-toggle {
+            position: absolute; right: 1rem; top: 2.6rem; cursor: pointer; color: #888;
+        }
         .btn {
             width: 100%; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #00d4ff 0%, #7928ca 100%);
-            color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+            color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.3s;
         }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
         .alert.error { background: rgba(239,68,68,0.2); display: block; }
+        .alert.success { background: rgba(16,185,129,0.2); display: block; }
         .auth-footer { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
         .auth-footer a { color: #00d4ff; text-decoration: none; }
+        .auth-footer div { margin-top: 0.5rem; color: #888; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spinner { animation: spin 1s linear infinite; display: none; }
     </style>
 </head>
 <body>
@@ -48,19 +55,26 @@
         <form id="loginForm">
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="admin@example.com" required>
+                <input type="email" id="email" placeholder="admin@example.com" required autocomplete="email">
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••••••" required>
+                <input type="password" id="password" placeholder="••••••••••••" required minlength="8" autocomplete="current-password">
+                <span class="password-toggle" onclick="togglePassword()">
+                    <i class="far fa-eye" id="toggleIcon"></i>
+                </span>
             </div>
             
-            <button type="submit" class="btn" id="submitBtn">Sign In</button>
+            <button type="submit" class="btn" id="submitBtn">
+                <span id="btnText">Sign In</span>
+                <i id="btnSpinner" class="fas fa-spinner spinner"></i>
+            </button>
         </form>
         
         <div class="auth-footer">
             <a href="forgot-password.html">Forgot password?</a>
+            <div>Default: admin@example.com / password from .env</div>
         </div>
     </div>
 
@@ -68,14 +82,25 @@
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:3001/api' : '/api';
 
+        function togglePassword() {
+            const password = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            password.type = password.type === 'password' ? 'text' : 'password';
+            icon.className = password.type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('btnSpinner');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const alertBox = document.getElementById('alertBox');
             
             btn.disabled = true;
-            btn.textContent = 'Signing in...';
+            btnText.style.display = 'inline';
+            spinner.style.display = 'inline-block';
             
             try {
                 const res = await fetch(`${API_BASE}/auth/login`, {
@@ -88,17 +113,26 @@
                 if (data.success) {
                     localStorage.setItem('admin_access_token', data.accessToken);
                     localStorage.setItem('admin_refresh_token', data.refreshToken);
-                    window.location.href = 'admin.html';
+                    localStorage.setItem('admin_auth_time', Date.now().toString());
+                    alertBox.className = 'alert success';
+                    alertBox.textContent = 'Login successful! Redirecting...';
+                    setTimeout(() => window.location.href = 'admin.html', 1000);
                 } else {
-                    document.getElementById('alertBox').textContent = data.message;
+                    alertBox.className = 'alert error';
+                    alertBox.textContent = data.message;
                 }
             } catch (error) {
-                document.getElementById('alertBox').textContent = 'Connection error';
+                alertBox.className = 'alert error';
+                alertBox.textContent = 'Connection error. Is the backend running?';
             }
             
             btn.disabled = false;
-            btn.textContent = 'Sign In';
+            btnText.style.display = 'inline';
+            spinner.style.display = 'none';
         });
+
+        // Auto-focus email field
+        document.getElementById('email').focus();
     </script>
 </body>
 </html>
