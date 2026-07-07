@@ -6,10 +6,15 @@ server/.env
 server/.env.local
 server/.env.production
 
-# Credentials and sensitive files
+# Credentials and sensitive files - EXCEPT auth pages
+!login.html
+!forgot-password.html
+!reset-password.html
 MY-CREDENTIALS.txt
 *credentials*
-*password*
+*password*.txt
+*.password
+passwords.txt
 
 # Node modules
 node_modules/
