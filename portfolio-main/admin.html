@@ -166,6 +166,9 @@
         <header class="header">
             <h1><i class="fas fa-cubes"></i> Portfolio Admin</h1>
             <div class="header-right">
+                <button class="logout-btn" onclick="exportData()" title="Export data" style="margin-right: 0.5rem;">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
                 <button class="logout-btn" onclick="toggleDarkMode()" title="Toggle dark mode">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
@@ -861,6 +864,26 @@
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
             document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        function exportData() {
+            const data = {
+                home: JSON.parse(sessionStorage.getItem('tableData_home') || '{}'),
+                projects: JSON.parse(sessionStorage.getItem('tableData_projects') || '[]'),
+                skills: JSON.parse(sessionStorage.getItem('tableData_skills') || '[]'),
+                challenges: JSON.parse(sessionStorage.getItem('tableData_challenges') || '[]'),
+                contributions: JSON.parse(sessionStorage.getItem('tableData_contributions') || '[]'),
+                experience: JSON.parse(sessionStorage.getItem('tableData_experience') || '[]'),
+                designs: JSON.parse(sessionStorage.getItem('tableData_graphic-design') || '[]')
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'portfolio-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showSnackbar('Data exported!', 'success');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
