@@ -196,9 +196,11 @@ const projectsRoutes = require('./routes/projects');
 const contactRoutes = require('./routes/contact');
 const analyticsRoutes = require('./routes/analytics');
 const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
 
 // Register API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 
 // Protected routes - only for write operations (handled in route files)
 // Public routes (read-only)
